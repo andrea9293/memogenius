@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+python-telegram-bot
+requests
+apscheduler
+python-dotenv
+crewai
+crewai-tools
+google-api-python-client
+chromadb
+SQLAlchemy
+pydantic
+pydantic-settings
+typing-extensions
+google-genai
+multiprocess
