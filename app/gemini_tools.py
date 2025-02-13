@@ -76,7 +76,7 @@ delete_reminder_declaration = types.FunctionDeclaration(
 
 perform_grounded_search_declaration = types.FunctionDeclaration(
     name="perform_grounded_search",
-    description="Esegue una ricerca sul web per ottenere informazioni contestuali. Nella risposta riporta sempre il link completo della fonte quando presente. Scrivilo in formato markdown riportando riportando come label il sito breve e come riferimento il link completo del vertexai fornito",
+    description="Esegue una ricerca sul web per ottenere informazioni contestuali",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
@@ -176,7 +176,7 @@ def perform_grounded_search(query: str) -> str:
 
     res=''
     for each in response.candidates[0].content.parts:
-        print(each.text)
+        # print(each.text)
         res += each.text + '\n'
 
     # print(res)
@@ -184,7 +184,7 @@ def perform_grounded_search(query: str) -> str:
     
     res = res + ' | sources: ' + str(response.candidates[0].grounding_metadata.grounding_chunks)
     
-    print(res)
+    # print(res)
     return res
 
 def get_current_datetime(dummyParameter: str = "") -> str:

@@ -29,7 +29,7 @@ from app.main import app as fastapi_app
 
 def run_fastapi():
     """Esegue il server FastAPI."""
-    uvicorn.run(fastapi_app, host="0.0.0.0", port=8000)
+    uvicorn.run(fastapi_app, host="127.0.0.1", port=8000)
 
 def run_telegram():
     """Esegue il bot Telegram."""

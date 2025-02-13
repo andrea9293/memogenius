@@ -1,6 +1,7 @@
 import telegram
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.helpers import escape_markdown
 from google import genai
 from google.genai import types
 from .config import settings
@@ -10,7 +11,14 @@ from typing import Dict, Any
 
 # Configura l'API di Gemini tramite il client
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
-sys_instruct="You are a Personal Assistant. Your name is Neko. You can do some tasks like creating reminders, getting reminders, updating reminders, and deleting reminders. You can also perform a grounded search."
+sys_instruct= """
+    
+    You are a Personal Assistant. Your name is Neko. You can do some tasks like creating reminders, 
+    getting reminders, updating reminders, and deleting reminders. You can also perform a grounded search. 
+    when you have some links, always report in message with label that when cliecked forward to full link.    
+    
+    """
+    # the expected output must be in html format, only the html and nothing else
 
 # --- Funzioni di utilità ---
 def get_user_id(update: telegram.Update) -> int:
@@ -19,9 +27,53 @@ def get_user_id(update: telegram.Update) -> int:
 
 # --- Funzioni di gestione dei comandi Telegram ---
 
+def escape_special_chars(text: str) -> str:
+    # Lista completa dei caratteri che necessitano escape in MarkdownV2
+    special_chars = ['~', '>', '#', '+', 
+                    '-', '=', '|', '{', '}', ')', '.', '!']
+    
+    text = text.replace('\\n', '\n')
+    
+    # Escape di ogni carattere speciale
+    for char in special_chars:
+        text = text.replace(char, f'\{char}')
+    return text
+
 async def start(update: telegram.Update, context: ContextTypes.DEFAULT_TYPE):
+    import re
     """Gestisce il comando /start."""
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Ciao! Sono il tuo assistente personale. Dimmi cosa devo ricordare!")
+    welcome_message = (
+        "\#\# Benvenuto in MemoGenius\!\n\n"
+        "*Benvenuto in MemoGenius\!*\n\n"
+        "Sono il tuo assistente personale\. Posso aiutarti a:\n"
+        "• Creare promemoria\n"
+        "• Visualizzare i tuoi impegni\n"
+        "• Modificare o eliminare promemoria\n"
+        "\- Cercare informazioni sul web\n\n"
+        "_Dimmi cosa posso fare per te\!_"
+        "[google](https://www.google.com)"
+        "``` [google](https://www.google.com) ```"
+        "\{ [google](https://www.google.com) \}"
+        "< [google](https://www.google.com) \>"
+        # "*Benvenuto in MemoGenius\!*\n\n"
+        # "Sono il tuo assistente personale\\. Posso aiutarti a:\n"
+        # "• Creare promemoria\n"
+        # "• Visualizzare i tuoi impegni\n"
+        # "• Modificare o eliminare promemoria\n"
+        # "• Cercare informazioni sul web\n\n"
+        # "_Dimmi cosa posso fare per te\!_"
+        # "[google](https://www.google.com)"
+    )
+    
+    print(welcome_message)
+    escaped_message = welcome_message
+    # escaped_message = escape_special_chars(welcome_message)
+    print(escaped_message)
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, 
+        text=escaped_message,
+        parse_mode='MarkdownV2'
+    )
 
 # --- Funzione principale per l'interazione con Gemini ---
 
@@ -84,7 +136,16 @@ async def handle_message(update: telegram.Update, context: ContextTypes.DEFAULT_
                 handled = True  # Abbiamo gestito una chiamata di funzione
 
         elif response.text:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=response.text)
+            print(response.text)
+            # formatted_text = response.text
+            # formatted_text = escape_markdown(response.text, version=2)
+            formatted_text = escape_special_chars(response.text)
+            print(formatted_text)
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, 
+                text=formatted_text,
+                parse_mode='MarkdownV2'
+            )
             handled = True  # Abbiamo gestito del testo
             break  # Esci dal ciclo dopo aver inviato il testo
 

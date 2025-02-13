@@ -47,7 +47,7 @@ The system is built on modern and reliable components:
 
 1. Clone the repository:
     ```bash
-    git clone <URL_REPOSITORY>
+    git clone https://github.com/andrea9293/memogenius.git
     cd memogenius
     ```
 
@@ -79,7 +79,16 @@ The system is built on modern and reliable components:
     ```
 
 ## 🎯 Execution
-
+### Activate the virtual environment
+    
+* Windows:
+```bash
+venv\Scripts\activate
+```
+* macOS/Linux:
+```bash
+source venv/bin/activate
+```
 ### Unified Startup (Recommended)
 Start both the FastAPI server and the Telegram bot with a single command:
 ```bash
