@@ -1,4 +1,6 @@
+import html
 import telegram
+from telegram.constants import ParseMode
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 from telegram.helpers import escape_markdown
@@ -11,13 +13,39 @@ from typing import Dict, Any
 
 # Configura l'API di Gemini tramite il client
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
-sys_instruct= """
+sys_instruct = """
+    You are a Personal Assistant named Neko. You speak in italian.
     
-    You are a Personal Assistant. Your name is Neko. You can do some tasks like creating reminders, 
-    getting reminders, updating reminders, and deleting reminders. You can also perform a grounded search. 
-    when you have some links, always report in message with label that when cliecked forward to full link.    
-    
-    """
+    You have specific tools available and MUST use them:
+
+    1. For ANY web searches or current information: ALWAYS use perform_grounded_search tool
+    2. For reminders: use create_reminder, get_reminders, update_reminder, delete_reminder tools
+    3. For current time: use get_current_datetime tool
+
+    NEVER invent or simulate responses. ALWAYS use the appropriate tool.
+
+    Format responses using HTML tags:
+    - <b>text</b> for bold
+    - <i>text</i> for italic
+    - <u>text</u> for underline
+    - <s>text</s> for strikethrough
+    - <pre>text</pre> for code
+    - <a href="URL">text</a> for links
+    - \n for line breaks (never use <br>)
+    - <blockquote>text</blockquote> for quotes
+
+    For lists:
+    • Use bullet points with \n
+    • Format important terms in <b>bold</b>
+    • Use <i>italic</i> for emphasis
+
+    IMPORTANT: 
+    - ALWAYS use tools for real-time data
+    - NEVER generate fictional responses
+    - Use ONLY HTML formatting, no Markdown
+    - Always include source links when using web search
+"""
+
     # the expected output must be in html format, only the html and nothing else
 
 # --- Funzioni di utilità ---
@@ -25,54 +53,65 @@ def get_user_id(update: telegram.Update) -> int:
     """Estrae l'ID utente da un oggetto Update di Telegram."""
     return update.effective_user.id
 
-# --- Funzioni di gestione dei comandi Telegram ---
-
-def escape_special_chars(text: str) -> str:
-    # Lista completa dei caratteri che necessitano escape in MarkdownV2
-    special_chars = ['~', '>', '#', '+', 
-                    '-', '=', '|', '{', '}', ')', '.', '!']
+def escape_html(text: str) -> str:
+    """Gestisce la formattazione del testo per Telegram"""
+    # Rimuove le righe che contengono ```
+    lines = text.splitlines()
+    lines = [line for line in lines if '```' not in line]
+    text = '\n'.join(lines)
     
-    text = text.replace('\\n', '\n')
+    # Sostituisce i tag <br> con \n
+    text = text.replace('<br>', '\n')
+    text = text.replace('<br/>', '\n')
+    text = text.replace('<br />', '\n')
+    text = text.replace('<div>', '')
+    text = text.replace('</div>', '')
+    text = text.replace('<li>', '• ')
+    text = text.replace('</li>', '\n')
+    text = text.replace('<ul>', '\n')
+    text = text.replace('</ul>', '\n')
     
-    # Escape di ogni carattere speciale
-    for char in special_chars:
-        text = text.replace(char, f'\{char}')
-    return text
+    # Usa html.escape() per gestire tutti i caratteri speciali
+    text = html.escape(text)
+    
+    # Ripristina i tag HTML validi
+    valid_tags = [
+        '<b>', '</b>', 
+        '<i>', '</i>', 
+        '<u>', '</u>', 
+        '<s>', '</s>',
+        '<a href', '\'>', '">', '</a>',
+        '<pre>', '</pre>',
+        '<code>', '</code>',
+        '<blockquote>', '</blockquote>',
+        '\'', '"'
+    ]
+    
+    for tag in valid_tags:
+        text = text.replace(html.escape(tag), tag)
+    
+    return text.strip()
 
 async def start(update: telegram.Update, context: ContextTypes.DEFAULT_TYPE):
     import re
     """Gestisce il comando /start."""
     welcome_message = (
-        "\#\# Benvenuto in MemoGenius\!\n\n"
-        "*Benvenuto in MemoGenius\!*\n\n"
-        "Sono il tuo assistente personale\. Posso aiutarti a:\n"
+        "<b>Benvenuto in MemoGenius!</b>\n\n"
+        "Sono il tuo assistente personale. Posso aiutarti a:\n"
         "• Creare promemoria\n"
         "• Visualizzare i tuoi impegni\n"
         "• Modificare o eliminare promemoria\n"
-        "\- Cercare informazioni sul web\n\n"
-        "_Dimmi cosa posso fare per te\!_"
-        "[google](https://www.google.com)"
-        "``` [google](https://www.google.com) ```"
-        "\{ [google](https://www.google.com) \}"
-        "< [google](https://www.google.com) \>"
-        # "*Benvenuto in MemoGenius\!*\n\n"
-        # "Sono il tuo assistente personale\\. Posso aiutarti a:\n"
-        # "• Creare promemoria\n"
-        # "• Visualizzare i tuoi impegni\n"
-        # "• Modificare o eliminare promemoria\n"
-        # "• Cercare informazioni sul web\n\n"
-        # "_Dimmi cosa posso fare per te\!_"
-        # "[google](https://www.google.com)"
+        "• Cercare informazioni sul web\n\n"
+        "<i>Dimmi cosa posso fare per te!</i>\n"
+        "<a href='https://www.google.com'>google</a>"
     )
     
-    print(welcome_message)
-    escaped_message = welcome_message
-    # escaped_message = escape_special_chars(welcome_message)
-    print(escaped_message)
+    print(escape_html(welcome_message))
+
     await context.bot.send_message(
         chat_id=update.effective_chat.id, 
-        text=escaped_message,
-        parse_mode='MarkdownV2'
+        text=escape_html(welcome_message),
+        parse_mode=ParseMode.HTML
     )
 
 # --- Funzione principale per l'interazione con Gemini ---
@@ -88,7 +127,7 @@ tools = [
         gemini_tools.get_current_datetime_declaration
     ])
 ]
-config = types.GenerateContentConfig(tools=tools, system_instruction=sys_instruct)
+config = types.GenerateContentConfig(tools=tools, system_instruction=sys_instruct, temperature=0.0)
 chat = client.chats.create(model='gemini-2.0-flash', config=config)  # Inizializza la chat
 
 async def handle_message(update: telegram.Update, context: ContextTypes.DEFAULT_TYPE):
@@ -136,15 +175,14 @@ async def handle_message(update: telegram.Update, context: ContextTypes.DEFAULT_
                 handled = True  # Abbiamo gestito una chiamata di funzione
 
         elif response.text:
-            print(response.text)
+            # print(response.text)
             # formatted_text = response.text
-            # formatted_text = escape_markdown(response.text, version=2)
-            formatted_text = escape_special_chars(response.text)
-            print(formatted_text)
+            formatted_text = escape_html(response.text)
+            # print(formatted_text)
             await context.bot.send_message(
                 chat_id=update.effective_chat.id, 
                 text=formatted_text,
-                parse_mode='MarkdownV2'
+                parse_mode=ParseMode.HTML
             )
             handled = True  # Abbiamo gestito del testo
             break  # Esci dal ciclo dopo aver inviato il testo

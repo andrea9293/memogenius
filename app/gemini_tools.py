@@ -7,20 +7,20 @@ from google import genai
 from google.genai.types import Tool, GenerateContentConfig, GoogleSearch
 from .config import settings
 
-BASE_API_URL = "http://127.0.0.1:8000"  # URL di base dell'API FastAPI
+BASE_API_URL = "http://127.0.0.1:8000"  # FastAPI base URL
 
-# --- Dichiarazioni delle funzioni (per Gemini) ---
+# --- Function Declarations (for Gemini) ---
 
 create_reminder_declaration = types.FunctionDeclaration(
     name="create_reminder",
-    description="Crea un nuovo promemoria per l'utente.",
+    description="Create a new reminder for the user.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
-            "text": types.Schema(type=types.Type.STRING, description="Il testo del promemoria."),
+            "text": types.Schema(type=types.Type.STRING, description="The reminder text content."),
             "due_date": types.Schema(
                 type=types.Type.STRING,
-                description="La data e l'ora del promemoria (formato ISO 8601, es. 2024-12-25T10:00:00).",
+                description="Reminder date and time (ISO 8601 format, e.g. 2024-12-25T10:00:00).",
             ),
         },
         required=["text", "due_date"],
@@ -29,35 +29,35 @@ create_reminder_declaration = types.FunctionDeclaration(
 
 get_reminders_declaration = types.FunctionDeclaration(
     name="get_reminders",
-    description="Ottiene i promemoria dell'utente.",
+    description="Retrieve user's reminders.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
             "skip": types.Schema(
-                type=types.Type.INTEGER, description="Il numero di promemoria da saltare (per la paginazione)."
+                type=types.Type.INTEGER, description="Number of reminders to skip (for pagination)."
             ),
             "limit": types.Schema(
-                type=types.Type.INTEGER, description="Il numero massimo di promemoria da restituire."
+                type=types.Type.INTEGER, description="Maximum number of reminders to return."
             ),
         },
-        required=[],  # Nessun parametro obbligatorio
+        required=[],  # No required parameters
     ),
 )
 
 update_reminder_declaration = types.FunctionDeclaration(
     name="update_reminder",
-    description="Aggiorna un promemoria esistente.",
+    description="Update an existing reminder.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
-            "reminder_id": types.Schema(type=types.Type.INTEGER, description="L'ID del promemoria da aggiornare."),
-            "text": types.Schema(type=types.Type.STRING, description="Il nuovo testo del promemoria."),
+            "reminder_id": types.Schema(type=types.Type.INTEGER, description="ID of the reminder to update."),
+            "text": types.Schema(type=types.Type.STRING, description="New reminder text content."),
             "due_date": types.Schema(
                 type=types.Type.STRING,
-                description="La nuova data e ora del promemoria (formato ISO 8601).",
+                description="New reminder date and time (ISO 8601 format).",
             ),
             "is_active": types.Schema(
-                type=types.Type.BOOLEAN, description="Il nuovo stato del promemoria, True se è attivo, False altrimenti."
+                type=types.Type.BOOLEAN, description="New reminder status, True if active, False otherwise."
             ),
         },
         required=["reminder_id","text", "due_date", "is_active"],
@@ -66,21 +66,21 @@ update_reminder_declaration = types.FunctionDeclaration(
 
 delete_reminder_declaration = types.FunctionDeclaration(
     name="delete_reminder",
-    description="Elimina un promemoria.",
+    description="Delete a reminder.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
-        properties={"reminder_id": types.Schema(type=types.Type.INTEGER, description="L'ID del promemoria da eliminare.")},
+        properties={"reminder_id": types.Schema(type=types.Type.INTEGER, description="ID of the reminder to delete.")},
         required=["reminder_id"],
     ),
 )
 
 perform_grounded_search_declaration = types.FunctionDeclaration(
     name="perform_grounded_search",
-    description="Esegue una ricerca sul web per ottenere informazioni contestuali",
+    description="Performs a web search. The output should include dates and times in Italian format and timezone. Always include source links.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
-            "query": types.Schema(type=types.Type.STRING, description="La query di ricerca."),
+            "query": types.Schema(type=types.Type.STRING, description="The search query."),
         },
         required=["query"],
     ),
@@ -88,16 +88,16 @@ perform_grounded_search_declaration = types.FunctionDeclaration(
 
 get_current_datetime_declaration = types.FunctionDeclaration(
     name="get_current_datetime",
-    description="Restituisce la data e l'ora correnti.",
+    description="Returns the current date and time.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
             "dummyParameter": types.Schema(
                 type=types.Type.STRING,
-                description="Parametro fittizio inutilizzato",
+                description="Unused dummy parameter",
             ),
         },
-        required=[],  # Nessun parametro obbligatorio
+        required=[],  # No required parameters
     ),
 )
 
@@ -105,11 +105,11 @@ get_current_datetime_declaration = types.FunctionDeclaration(
 
 def create_reminder_tool(user_id: int, text: str, due_date: str) -> Dict[str, Any]:
     print("create_reminder_tool")
-    """Crea un nuovo promemoria (chiamata API)."""
+    """Creates a new reminder (API call)."""
     try:
         due_date_dt = datetime.fromisoformat(due_date)
     except ValueError:
-        return {"error": "Formato data non valido. Usa ISO 8601 (YYYY-MM-DDTHH:MM:SS)."}
+        return {"error": "Invalid date format. Use ISO 8601 (YYYY-MM-DDTHH:MM:SS)."}
 
     payload = {"user_id": user_id, "text": text, "due_date": due_date_dt.isoformat()}
     response = requests.post(f"{BASE_API_URL}/reminders/", json=payload)
@@ -119,7 +119,7 @@ def create_reminder_tool(user_id: int, text: str, due_date: str) -> Dict[str, An
 
 def get_reminders_tool(user_id: int, skip: int = 0, limit: int = 100) -> List[Dict[str, Any]]:
     print("get_reminders_tool")
-    """Ottiene i promemoria (chiamata API)."""
+    """Retrieves reminders (API call)."""
     params = {"user_id": user_id, "skip": skip, "limit": limit}
     response = requests.get(f"{BASE_API_URL}/reminders/", params=params)
     response.raise_for_status()
@@ -128,7 +128,7 @@ def get_reminders_tool(user_id: int, skip: int = 0, limit: int = 100) -> List[Di
 
 def update_reminder_tool(reminder_id: int, text: str | None = None, due_date: str | None = None, is_active: bool | None = None) -> Dict[str, Any]:
     print("update_reminder_tool")
-    """Aggiorna un promemoria (chiamata API)."""
+    """Updates a reminder (API call)."""
     payload = {}
     if text is not None:
         payload["text"] = text
@@ -137,12 +137,12 @@ def update_reminder_tool(reminder_id: int, text: str | None = None, due_date: st
             due_date_dt = datetime.fromisoformat(due_date)
             payload["due_date"] = due_date_dt.isoformat()
         except ValueError:
-            return {"error": "Formato data non valido. Usa ISO 8601 (YYYY-MM-DDTHH:MM:SS)."}
+            return {"error": "Invalid date format. Use ISO 8601 (YYYY-MM-DDTHH:MM:SS)."}
     if is_active is not None:
         payload["is_active"] = is_active
 
     if not payload:
-        return {"error": "Nessun dato fornito per l'aggiornamento."}
+        return {"error": "No data provided for update."}
 
     response = requests.put(f"{BASE_API_URL}/reminders/{reminder_id}", json=payload)
     response.raise_for_status()
@@ -151,13 +151,21 @@ def update_reminder_tool(reminder_id: int, text: str | None = None, due_date: st
 
 def delete_reminder_tool(reminder_id: int) -> Dict[str, Any]:
     print("delete_reminder_tool")
-    """Elimina un promemoria (chiamata API)."""
+    """Deletes a reminder (API call)."""
     response = requests.delete(f"{BASE_API_URL}/reminders/{reminder_id}")
     response.raise_for_status()
     return response.json()
 
 def perform_grounded_search(query: str) -> str:
     print("perform_grounded_search")
+
+    sys_instruct = """
+        You are a web search expert who optimizes and transforms requests into effective web searches.
+        Use exclusively your web search tool and only look for real, current results from the web.
+        Format all dates and times in Italian format and timezone.
+        Always include and cite your sources.
+    """
+
     client = genai.Client(api_key=settings.GEMINI_API_KEY)
     model_id = "gemini-2.0-flash"
 
@@ -167,12 +175,16 @@ def perform_grounded_search(query: str) -> str:
 
     response = client.models.generate_content(
         model=model_id,
-        contents=query,
+        contents=f"search on web usign your GoogleSearch tool: {query}",
         config=types.GenerateContentConfig(
             tools=[google_search_tool],
             response_modalities=["TEXT"],
+            temperature=0.0,
+            system_instruction=sys_instruct
         )
     )
+    
+    print(response)
 
     res=''
     for each in response.candidates[0].content.parts:
@@ -184,11 +196,11 @@ def perform_grounded_search(query: str) -> str:
     
     res = res + ' | sources: ' + str(response.candidates[0].grounding_metadata.grounding_chunks)
     
-    # print(res)
+    print(res)
     return res
 
 def get_current_datetime(dummyParameter: str = "") -> str:
-    """Restituisce la data e l'ora correnti in formato ISO 8601."""
+    """Returns current date and time in ISO 8601 format."""
     print("get_current_datetime")
     now = datetime.now()
     return now.isoformat()
