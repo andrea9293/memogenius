@@ -1,27 +1,3 @@
-
-# **Spiegazione del codice `start_all.py`:**
-# 1. **Importazioni:**
-#    - `multiprocessing`: gestione processi paralleli
-#    - `uvicorn`: server ASGI per FastAPI
-#    - Importazione delle app esistenti
-
-# 2. **Funzioni wrapper:**
-#    - `run_fastapi()`: avvia il server FastAPI
-#    - `run_telegram()`: avvia il bot Telegram
-
-# 3. **Gestione processi:**
-#    - Creazione processi separati per FastAPI e Telegram
-#    - Avvio parallelo dei processi
-#    - Gestione pulita dell'interruzione con try/except
-
-# 4. **Vantaggi di questo approccio:**
-#    - Isolamento dei processi
-#    - Gestione indipendente delle risorse
-#    - Terminazione pulita
-#    - Facilità di debug
-# Per utilizzare questa configurazione, basta eseguire `python start_all.py` dalla root del progetto.
-
-
 import multiprocessing
 import uvicorn
 from app.telegram_bot import setup_telegram_bot
@@ -36,24 +12,35 @@ def run_telegram():
     app = setup_telegram_bot()
     app.run_polling()
 
+def run_scheduler():
+    """Esegue lo scheduler dei promemoria."""
+    import app.scheduler  # Import solo qui per avviare lo scheduler
+    # Il processo rimane attivo finché lo scheduler è in esecuzione
+    import time
+    while True:
+        time.sleep(1)
+
 if __name__ == "__main__":
     # Crea i processi
     fastapi_process = multiprocessing.Process(target=run_fastapi)
     telegram_process = multiprocessing.Process(target=run_telegram)
+    scheduler_process = multiprocessing.Process(target=run_scheduler)
 
     # Avvia i processi
     fastapi_process.start()
     telegram_process.start()
+    scheduler_process.start()
 
     try:
-        # Attendi che i processi terminino (se necessario)
         fastapi_process.join()
         telegram_process.join()
+        scheduler_process.join()
     except KeyboardInterrupt:
-        # Gestione pulita dell'interruzione (Ctrl+C)
         print("\nArresto in corso...")
         fastapi_process.terminate()
         telegram_process.terminate()
+        scheduler_process.terminate()
         fastapi_process.join()
         telegram_process.join()
+        scheduler_process.join()
         print("Applicazione terminata.")
