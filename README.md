@@ -8,9 +8,10 @@ MemoGenius is an intelligent personal assistant based on Telegram that helps you
   * Create, view, modify, and delete reminders
   * Natural language understanding
   * Contextual suggestions
+  * Automatic notifications when reminders are due
 
 * 🔍 **Advanced Search (RAG)**
-  * Web search via Google Custom Search
+  * Web search via Google Custom Search (Gemini 2.0 tool)
   * Vector database (ChromaDB) (work in progress...)
   * Custom text files (work in progress...)
 
@@ -18,6 +19,7 @@ MemoGenius is an intelligent personal assistant based on Telegram that helps you
   * Gemini model for language processing
   * Contextual and relevant answers
   * CrewAI for agent orchestration (work in progress...)
+  * HTML formatted responses
 
 * 💬 **Telegram Interface**
   * Easy to use
@@ -36,6 +38,8 @@ The system is built on modern and reliable components:
 * **AI:**
   * Gemini API
   * CrewAI
+* **Scheduler:**
+  * APScheduler for reminder notifications
 
 ## 📋 Prerequisites
 
@@ -121,6 +125,7 @@ memogenius/
 │   ├── models.py      # Database models
 │   ├── utils.py       # Utilities
 │   ├── database.py    # DB Connection
+│   ├── scheduler.py   # Reminder scheduler
 │   └── schemas.py     # Pydantic Schemas
 │
 ├── data/               # Local data
@@ -134,8 +139,17 @@ memogenius/
 └── .gitignore      # Git ignore
 ```
 
+## 🌐 API Documentation
+
+When the FastAPI server is running, access the API documentation at:
+
+Swagger UI: http://127.0.0.1:8000/docs
+ReDoc: http://127.0.0.1:8000/redoc
+
 ## 🤝 Contributing
-Contributions are welcome!
+
+Contributions are welcome! Please feel free to submit pull requests.
+
 
 ## 📄 License
 This project is distributed under the AGPLv3 License.  
