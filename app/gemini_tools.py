@@ -88,7 +88,7 @@ perform_grounded_search_declaration = types.FunctionDeclaration(
 
 get_current_datetime_declaration = types.FunctionDeclaration(
     name="get_current_datetime",
-    description="Returns the current date and time.",
+    description="Returns the current date and time. If you don't know exact time, use get_current_datetime tool without asking confirmation",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={

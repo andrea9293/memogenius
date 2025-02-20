@@ -44,6 +44,7 @@ sys_instruct = """
     - NEVER generate fictional responses
     - Use ONLY HTML formatting, no Markdown
     - Always include source links when using web search
+    - If you don't know exact time, use get_current_datetime tool without asking confirmation
 """
 
     # the expected output must be in html format, only the html and nothing else
