@@ -11,13 +11,13 @@ MemoGenius is an intelligent personal assistant based on Telegram that helps you
 
 * 🔍 **Advanced Search (RAG)**
   * Web search via Google Custom Search
-  * Vector database (ChromaDB)
-  * Custom text files
+  * Vector database (ChromaDB) (work in progress...)
+  * Custom text files (work in progress...)
 
 * 🤖 **Artificial Intelligence**
   * Gemini model for language processing
-  * CrewAI for agent orchestration
   * Contextual and relevant answers
+  * CrewAI for agent orchestration (work in progress...)
 
 * 💬 **Telegram Interface**
   * Easy to use
@@ -136,6 +136,7 @@ memogenius/
 Contributions are welcome!
 
 ## 📄 License
-This project is distributed under the MIT license.
+This project is distributed under the AGPLv3 License.  
+See: [AGPLv3 License](https://www.gnu.org/licenses/agpl-3.0.en.html)  
 
 
