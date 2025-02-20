@@ -108,6 +108,7 @@ uvicorn app.main:app --reload
 ```
 
 ## 📁 Project Structure
+```
 memogenius/
 ├── app/                 # Application core
 │   ├── __init__.py
@@ -131,6 +132,7 @@ memogenius/
 ├── requirements.txt  # Dependencies
 ├── README.md        # Documentation
 └── .gitignore      # Git ignore
+```
 
 ## 🤝 Contributing
 Contributions are welcome!
