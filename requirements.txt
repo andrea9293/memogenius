@@ -14,3 +14,4 @@ pydantic-settings
 typing-extensions
 google-genai
 multiprocess
+pytz

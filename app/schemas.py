@@ -3,11 +3,11 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 
 class ReminderBase(BaseModel):
-    text: str = Field(..., description="Testo del promemoria")
-    due_date: datetime = Field(..., description="Data e ora del promemoria")
+    text: str = Field(..., description="Reminder text")
+    due_date: datetime = Field(..., description="Reminder date and time")
 
 class ReminderCreate(ReminderBase):
-    user_id: int = Field(..., description="ID dell'utente Telegram") #per il momento lo chiede, poi sarà automatico
+    user_id: int = Field(..., description="Telegram user ID")
 
 class ReminderUpdate(ReminderBase):
     is_active: bool = True

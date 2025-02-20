@@ -7,7 +7,7 @@ class Reminder(Base):
     __tablename__ = "reminders"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, index=True)  # ID dell'utente Telegram (lo useremo in seguito)
+    user_id = Column(Integer, index=True)  # Telegram user ID
     text = Column(String)
     due_date = Column(DateTime)
     is_active = Column(Boolean, default=True)

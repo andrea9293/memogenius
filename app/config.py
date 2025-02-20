@@ -6,11 +6,10 @@ from dotenv import load_dotenv
 load_dotenv()
 class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
-    GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
+    GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "") # unused
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    DATABASE_URL: str = "sqlite:///./data/reminders.db"  # SQLite per semplicità
+    DATABASE_URL: str = "sqlite:///./data/reminders.db"  # SQLite for simplicity
     CUSTOM_RAG_PATH: str = "./data/custom_rag"
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8')
-    #todo capire il commento sqlite
 
 settings = Settings()

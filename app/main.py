@@ -1,12 +1,12 @@
 # app/main.py
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from . import reminders, database, schemas, models  # Importa i moduli locali
+from . import reminders, database, schemas, models  # Import local modules
 from .database import get_db
 
 app = FastAPI()
 
-# Inizializza le tabelle del database (se non esistono)
+# Initialize database tables (if they don't exist)
 @app.on_event("startup")
 def startup_event():
     models.Base.metadata.create_all(bind=database.engine)
@@ -17,7 +17,7 @@ def read_root():
     return {"Hello": "World"}
 
 
-# --- Rotte per i promemoria ---
+# --- Routes for reminders ---
 @app.post("/reminders/", response_model=schemas.Reminder)
 def create_reminder(reminder: schemas.ReminderCreate, db: Session = Depends(get_db)):
     return reminders.create_reminder(db=db, reminder=reminder)
