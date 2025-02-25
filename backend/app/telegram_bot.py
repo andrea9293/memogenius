@@ -101,7 +101,6 @@ async def show_key(update: telegram.Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_message(update: telegram.Update, context: ContextTypes.DEFAULT_TYPE):
     """Processes user messages using ChatHandler and sends responses"""
     user_id = get_user_id(update)
-    # Rimuoviamo il parametro is_telegram che non è atteso
     response = await chat_handler.handle_message(update.message.text, user_id)
     
     if response.get("text"):

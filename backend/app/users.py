@@ -5,13 +5,13 @@ from . import models
 from .models import User
 
 def generate_access_key() -> str:
-    """Genera una chiave di accesso nel formato MG-XXXX-XXXX"""
+    """Generates an access key in the format MG-XXXX-XXXX"""
     chars = string.ascii_uppercase + string.digits
     code = ''.join(random.choices(chars, k=8))
     return f"MG-{code[:4]}-{code[4:]}"
 
 def get_or_create_telegram_user(db: Session, telegram_id: int) -> User:
-    """Crea o recupera un utente da Telegram ID"""
+    """Creates or retrieves a user from Telegram ID"""
     user = db.query(User).filter(User.telegram_id == telegram_id).first()
     if not user:
         access_key = generate_access_key()
@@ -22,7 +22,7 @@ def get_or_create_telegram_user(db: Session, telegram_id: int) -> User:
     return user
 
 def link_web_token(db: Session, access_key: str, web_token: str) -> User:
-    """Collega un web token a un utente esistente"""
+    """Links a web token to an existing user"""
     user = db.query(User).filter(User.access_key == access_key).first()
     if user:
         user.web_token = web_token
@@ -31,5 +31,5 @@ def link_web_token(db: Session, access_key: str, web_token: str) -> User:
     return user
 
 def get_user_by_token(db: Session, web_token: str) -> User:
-    """Recupera un utente dal web token"""
+    """Retrieves a user from the web token"""
     return db.query(User).filter(User.web_token == web_token).first()

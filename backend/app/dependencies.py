@@ -4,17 +4,17 @@ from .database import get_db
 from . import models
 
 def get_from_user_id(db: Session, user_id: int) -> int | None:
-    """Ottiene il telegram_id di un utente dato il suo user_id del database"""
+    """Gets a user object given their database user_id, telegram_id or web_token"""
     user = db.query(models.User).filter(models.User.telegram_id == user_id).first()
     if user:
         return user
 
-    # Se non trovato, cerca per web_token
+    # If not found, search by web_token
     user = db.query(models.User).filter(models.User.web_token == user_id).first()
     if user:
         return user
     
-    # Se non trovato, cerca per id
+    # If not found, search by id
     user = db.query(models.User).filter(models.User.id == user_id).first()
     return user
     
@@ -22,7 +22,7 @@ async def get_current_user(
     request: Request,
     db: Session = Depends(get_db)
 ) -> models.User:
-    # Ottieni user_id dai parametri
+    # Get user_id from parameters
     user_id = request.query_params.get('user_id')
     if not user_id:
         raise HTTPException(
@@ -30,17 +30,17 @@ async def get_current_user(
             detail="user_id parameter is required"
         )
 
-    # Cerca l'utente prima per telegram_id
+    # Search user first by telegram_id
     user = db.query(models.User).filter(models.User.telegram_id == user_id).first()
     if user:
         return user
 
-    # Se non trovato, cerca per web_token
+    # If not found, search by web_token
     user = db.query(models.User).filter(models.User.web_token == user_id).first()
     if user:
         return user
     
-    # Se non trovato, cerca per id
+    # If not found, search by id
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if user:
         return user

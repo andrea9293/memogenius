@@ -20,7 +20,12 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup_event():
+    # Inizializza SQLite
     models.Base.metadata.create_all(bind=database.engine)
+    
+    # Inizializza esplicitamente ChromaDB
+    from .memory_db import get_memory_db
+    get_memory_db()
 
 @app.post("/auth/web-login", response_model=schemas.User)
 def web_login(

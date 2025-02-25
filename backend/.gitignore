@@ -47,5 +47,5 @@ venv/
 
 # Database
 data/*.db
-data/custom_rag/*.txt
+data/custom_rag/*
 data/reminders.db

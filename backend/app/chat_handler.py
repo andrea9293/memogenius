@@ -1,16 +1,17 @@
 from google import genai
 from google.genai import types
 from .config import settings
-from . import gemini_tools
+from . import gemini_tools, memory_tools
 
 sys_instruct = """
-    You are a Personal Assistant named Neko. You speak in italian.
+    You are a Personal Assistant named Neko. You speak in Italian or English as the human wishes.
     
     You have specific tools available and MUST use them:
 
     1. For ANY web searches: ALWAYS use perform_grounded_search tool
     2. For reminders: use create_reminder, get_reminders, update_reminder, delete_reminder tools
     3. For current time: use get_current_datetime tool
+    4. For remember and your memory management (RAG): use store_memory, retrieve_memory, update_memory, delete_memory tools
 
     NEVER invent or simulate responses. ALWAYS use the appropriate tool.
 
@@ -35,6 +36,8 @@ sys_instruct = """
     - Use ONLY HTML formatting, no Markdown
     - Always include source links when using web search
     - If you don't know exact time, use get_current_datetime tool without asking confirmation
+    - When storing or updating memories, include all relevant details
+    - For ambiguous memory queries, ask the user to be more specific
 """
 
 class ChatHandler:
@@ -43,7 +46,7 @@ class ChatHandler:
         self.setup_chat()
 
     def setup_chat(self):
-        """Inizializza la chat con Gemini e configura gli strumenti disponibili"""
+        """Initialize chat with Gemini and configure available tools"""
         self.tools = [
             types.Tool(function_declarations=[
                 gemini_tools.create_reminder_declaration,
@@ -51,14 +54,20 @@ class ChatHandler:
                 gemini_tools.update_reminder_declaration,
                 gemini_tools.delete_reminder_declaration,
                 gemini_tools.perform_grounded_search_declaration,
-                gemini_tools.get_current_datetime_declaration
+                gemini_tools.get_current_datetime_declaration,
+                
+                # memory tools
+                memory_tools.store_memory_declaration,
+                memory_tools.retrieve_memory_declaration,
+                memory_tools.update_memory_declaration,
+                memory_tools.delete_memory_declaration
             ])
         ]
         
         self.config = types.GenerateContentConfig(
             tools=self.tools,
             system_instruction=sys_instruct,
-            temperature=0.0
+            temperature=0.7
         )
         
         self.chat = self.client.chats.create(
@@ -67,21 +76,24 @@ class ChatHandler:
         )
 
     async def handle_function_call(self, function_name: str, function_args: dict) -> dict:
-        """Gestisce le chiamate alle funzioni disponibili"""
+        """Handle calls to available functions"""
         function_mapping = {
             "create_reminder": gemini_tools.create_reminder_tool,
             "get_reminders": gemini_tools.get_reminders_tool,
             "update_reminder": gemini_tools.update_reminder_tool,
             "delete_reminder": gemini_tools.delete_reminder_tool,
             "perform_grounded_search": gemini_tools.perform_grounded_search,
-            "get_current_datetime": gemini_tools.get_current_datetime
+            "get_current_datetime": gemini_tools.get_current_datetime,
+            
+            # memory tools
+            "store_memory": memory_tools.store_memory_tool,
+            "retrieve_memory": memory_tools.retrieve_memory_tool,
+            "update_memory": memory_tools.update_memory_tool,
+            "delete_memory": memory_tools.delete_memory_tool
         }
         
         if function_name in function_mapping:
-            # if function_name == "create_reminder" or function_name == "get_reminders":
             print(f"Function {function_name} called with args: {function_args} and user_id: {function_args['user_id']}")
-            # function_args['user_id'] = user_id
-
             result = function_mapping[function_name](**function_args)
         else:
             result = {"error": f"Unknown function: {function_name}"}
@@ -90,13 +102,17 @@ class ChatHandler:
         return result
 
     async def handle_message(self, message: str, user_id: int | None = None) -> dict:
-        """Gestisce un messaggio e restituisce la risposta appropriata"""
+        """Handle a message and return the appropriate response"""
         print(f"Processing message: {message} for user: {user_id}")
         response = self.chat.send_message(message)
         result = {"text": ""}
 
         while True:
             if response.function_calls:
+                print(f"Response has {len(response.function_calls)} function calls")
+                # Collect all function responses in one pass
+                function_responses = []
+                
                 for function_call in response.function_calls:
                     function_name = function_call.name
                     function_args = dict(function_call.args)
@@ -110,21 +126,26 @@ class ChatHandler:
                         function_args
                     )
                     print(f"Function result: {function_result}")
-
-                    response = self.chat.send_message(
-                        types.Content(
-                            parts=[types.Part(
-                                function_response=types.FunctionResponse(
-                                    name=function_name,
-                                    response={"content": function_result}
-                                )
-                            )],
-                            role="function"
+                    
+                    # Add response to list instead of sending immediately
+                    function_responses.append(
+                        types.Part(
+                            function_response=types.FunctionResponse(
+                                name=function_name,
+                                response={"content": function_result}
+                            )
                         )
                     )
+                
+                # Send all responses in a single message
+                response = self.chat.send_message(
+                    types.Content(
+                        parts=function_responses,
+                        role="function"
+                    )
+                )
             elif response.text:
                 result["text"] = response.text
                 break
 
         return result
-

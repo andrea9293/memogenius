@@ -103,17 +103,19 @@ get_current_datetime_declaration = types.FunctionDeclaration(
     ),
 )
 
-# --- Funzioni che eseguono le chiamate API ---
+# --- Functions that execute API calls ---
 
 def get_user_id_from_identifier(db, identifier: int | str) -> int:
-    """Converte telegram_id o web_token nell'id utente del database"""
+    """Converts telegram_id or web_token to the database user id"""
     user = None
-    # Prova prima come telegram_id
+    # First try as telegram_id
     if isinstance(identifier, int):
         user = db.query(models.User).filter(models.User.telegram_id == identifier).first()
-    # Altrimenti prova come web_token
+    # Otherwise try as web_token
     if not user and isinstance(identifier, str):
         user = db.query(models.User).filter(models.User.web_token == identifier).first()
+    if not user:
+        user = db.query(models.User).filter(models.User.id == identifier).first()
     
     return user.id if user else None
 
@@ -123,12 +125,12 @@ def create_reminder_tool(user_id: int | str, text: str, due_date: str) -> Dict[s
     try:
         real_user_id = get_user_id_from_identifier(db, user_id)
         if not real_user_id:
-            return {"error": "Utente non trovato"}
+            return {"error": "User not found"}
 
         try:
             due_date_dt = datetime.fromisoformat(due_date)
         except ValueError:
-            return {"error": "Formato data non valido. Usa ISO 8601 (YYYY-MM-DDTHH:MM:SS)."}
+            return {"error": "Invalid date format. Use ISO 8601 (YYYY-MM-DDTHH:MM:SS)."}
 
         reminder_data = {
             "user_id": real_user_id,
@@ -137,7 +139,7 @@ def create_reminder_tool(user_id: int | str, text: str, due_date: str) -> Dict[s
         }
         result = reminders.create_reminder(db, schemas.ReminderCreate(**reminder_data))
         
-        # Crea un dizionario serializzabile invece di usare __dict__
+        # Create a serializable dictionary instead of using __dict__
         return {
             "id": result.id,
             "text": result.text,
@@ -156,7 +158,7 @@ def get_reminders_tool(user_id: int | str, skip: int = 0, limit: int = 100) -> L
     try:
         real_user_id = get_user_id_from_identifier(db, user_id)
         if not real_user_id:
-            return {"error": "Utente non trovato"}
+            return {"error": "User not found"}
 
         reminders_list = reminders.get_reminders(db, real_user_id, skip, limit)
         # Proper serialization of reminder objects
@@ -188,7 +190,7 @@ def update_reminder_tool(reminder_id: int, text: str | None = None, due_date: st
                 due_date_dt = datetime.fromisoformat(due_date)
                 update_data["due_date"] = due_date_dt
             except ValueError:
-                return {"error": "Formato data non valido. Usa ISO 8601 (YYYY-MM-DDTHH:MM:SS)."}
+                return {"error": "Invalid date format. Use ISO 8601 (YYYY-MM-DDTHH:MM:SS)."}
         if is_active is not None:
             update_data["is_active"] = is_active
 
@@ -205,7 +207,7 @@ def update_reminder_tool(reminder_id: int, text: str | None = None, due_date: st
                 "user_id": result.user_id
             }
         else:
-            return {"error": "Promemoria non trovato"}
+            return {"error": "Reminder not found"}
     finally:
         db.close()
 
@@ -226,7 +228,7 @@ def delete_reminder_tool(reminder_id: int, user_id: int | None = None) -> Dict[s
                 "user_id": result.user_id
             }
         else:
-            return {"error": "Promemoria non trovato"}
+            return {"error": "Reminder not found"}
     finally:
         db.close()
 
