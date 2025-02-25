@@ -65,14 +65,14 @@ def read_reminders(
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    print(f"Reading reminders for user {current_user.id}")
+    # print(f"Reading reminders for user {current_user.id}")
     reminders_list = reminders.get_reminders(
         db=db, 
         user_id=current_user.id,
         skip=skip, 
         limit=limit
     )
-    print(f"Found {len(reminders_list)} reminders")
+    # print(f"Found {len(reminders_list)} reminders")
     return reminders_list
 
 @app.get("/reminders/{reminder_id}", response_model=schemas.Reminder)

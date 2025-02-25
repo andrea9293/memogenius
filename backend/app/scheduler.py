@@ -6,6 +6,7 @@ from telegram.constants import ParseMode
 from .database import SessionLocal
 from . import models
 from .telegram_bot import setup_telegram_bot
+from .dependencies import get_from_user_id
 
 async def check_and_send_reminders_async():
     now = datetime.now()
@@ -22,10 +23,13 @@ async def check_and_send_reminders_async():
             bot = telegram_app.bot  # ExtBot (async)
 
             for reminder in due_reminders:
+                user = get_from_user_id(db, reminder.user_id)
+                telegram_id = user.telegram_id
                 message_text = f"⏰ <b>Time for:</b>\n\n {reminder.text}"
                 try:
                     # Using await
-                    await bot.send_message(chat_id=reminder.user_id, text=message_text, parse_mode=ParseMode.HTML)
+                    print("Sending message to user:", telegram_id)
+                    await bot.send_message(chat_id=telegram_id, text=message_text, parse_mode=ParseMode.HTML)
                     reminder.is_active = False
                 except Exception as e:
                     print(f"Error sending message: {e}")

@@ -1,4 +1,4 @@
-import { TextField, IconButton, Box } from '@mui/material';
+import { TextField, IconButton, Box, Paper } from '@mui/material';
 import { Send as SendIcon } from '@mui/icons-material';
 import { useState } from 'react';
 
@@ -19,13 +19,18 @@ export const MessageInput = ({ onSendMessage, disabled }: MessageInputProps) => 
   };
 
   return (
-    <Box
+    <Paper
+      elevation={2}
       component="form"
       onSubmit={handleSubmit}
-      sx={{ 
-        display: 'flex', 
+      sx={{
+        display: 'flex',
         gap: 1,
-        mt: 2
+        mt: 2,
+        p: 1,
+        pl: 2,
+        borderRadius: 3,
+        boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
       }}
     >
       <TextField
@@ -33,16 +38,35 @@ export const MessageInput = ({ onSendMessage, disabled }: MessageInputProps) => 
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Scrivi un messaggio..."
-        variant="outlined"
+        variant="standard"
         disabled={disabled}
+        InputProps={{
+          disableUnderline: true,
+        }}
+        sx={{
+          '& .MuiInputBase-root': {
+            fontSize: '1rem',
+            padding: '8px 0',
+          }
+        }}
       />
-      <IconButton 
-        type="submit" 
+      <IconButton
+        type="submit"
         color="primary"
-        disabled={disabled}
+        disabled={disabled || !message.trim()}
+        sx={{
+          bgcolor: message.trim() ? 'primary.main' : 'transparent',
+          color: message.trim() ? 'white' : 'primary.main',
+          '&:hover': {
+            bgcolor: message.trim() ? 'primary.dark' : 'rgba(90,124,226,0.1)',
+          },
+          transition: 'all 0.2s',
+          width: 44,
+          height: 44,
+        }}
       >
         <SendIcon />
       </IconButton>
-    </Box>
+    </Paper>
   );
 };

@@ -3,6 +3,21 @@ from sqlalchemy.orm import Session
 from .database import get_db
 from . import models
 
+def get_from_user_id(db: Session, user_id: int) -> int | None:
+    """Ottiene il telegram_id di un utente dato il suo user_id del database"""
+    user = db.query(models.User).filter(models.User.telegram_id == user_id).first()
+    if user:
+        return user
+
+    # Se non trovato, cerca per web_token
+    user = db.query(models.User).filter(models.User.web_token == user_id).first()
+    if user:
+        return user
+    
+    # Se non trovato, cerca per id
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    return user
+    
 async def get_current_user(
     request: Request,
     db: Session = Depends(get_db)

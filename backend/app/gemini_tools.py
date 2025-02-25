@@ -7,7 +7,7 @@ from google import genai
 from google.genai.types import Tool, GenerateContentConfig, GoogleSearch
 from .config import settings
 from .database import SessionLocal
-from . import models, reminders
+from . import models, reminders, schemas
 
 BASE_API_URL = "http://127.0.0.1:8000"  # FastAPI base URL
 
@@ -136,7 +136,17 @@ def create_reminder_tool(user_id: int | str, text: str, due_date: str) -> Dict[s
             "due_date": due_date_dt
         }
         result = reminders.create_reminder(db, schemas.ReminderCreate(**reminder_data))
-        return result.__dict__
+        
+        # Crea un dizionario serializzabile invece di usare __dict__
+        return {
+            "id": result.id,
+            "text": result.text,
+            "due_date": result.due_date.isoformat(),
+            "is_active": result.is_active,
+            "created_at": result.created_at.isoformat(),
+            "updated_at": result.updated_at.isoformat() if result.updated_at else None,
+            "user_id": result.user_id
+        }
     finally:
         db.close()
 
@@ -182,8 +192,20 @@ def update_reminder_tool(reminder_id: int, text: str | None = None, due_date: st
         if is_active is not None:
             update_data["is_active"] = is_active
 
-        result = reminders.update_reminder(db, reminder_id, schemas.ReminderUpdate(**update_data))
-        return result.__dict__ if result else {"error": "Promemoria non trovato"}
+        result = reminders.update_reminder(db, reminder_id, schemas.ReminderUpdate(**update_data), user_id)
+        
+        if result:
+            return {
+                "id": result.id,
+                "text": result.text,
+                "due_date": result.due_date.isoformat(),
+                "is_active": result.is_active,
+                "created_at": result.created_at.isoformat(),
+                "updated_at": result.updated_at.isoformat() if result.updated_at else None,
+                "user_id": result.user_id
+            }
+        else:
+            return {"error": "Promemoria non trovato"}
     finally:
         db.close()
 
@@ -192,7 +214,19 @@ def delete_reminder_tool(reminder_id: int, user_id: int | None = None) -> Dict[s
     db = SessionLocal()
     try:
         result = reminders.delete_reminder(db, reminder_id)
-        return result.__dict__ if result else {"error": "Promemoria non trovato"}
+        
+        if result:
+            return {
+                "id": result.id,
+                "text": result.text,
+                "due_date": result.due_date.isoformat(),
+                "is_active": result.is_active,
+                "created_at": result.created_at.isoformat(),
+                "updated_at": result.updated_at.isoformat() if result.updated_at else None,
+                "user_id": result.user_id
+            }
+        else:
+            return {"error": "Promemoria non trovato"}
     finally:
         db.close()
 
@@ -211,10 +245,10 @@ def perform_grounded_search(query: str, user_id: int | None = None) -> str:
     google_search_tool = types.Tool(
         google_search = types.GoogleSearch()
     )
-
+    print("perform_grounded_search 2")
     response = client.models.generate_content(
         model=model_id,
-        contents=f"search on web usign your GoogleSearch tool: {query}",
+        contents=f"search on web using your GoogleSearch tool: {query}",
         config=types.GenerateContentConfig(
             tools=[google_search_tool],
             response_modalities=["TEXT"],

@@ -8,7 +8,7 @@ sys_instruct = """
     
     You have specific tools available and MUST use them:
 
-    1. For ANY web searches or current information: ALWAYS use perform_grounded_search tool
+    1. For ANY web searches: ALWAYS use perform_grounded_search tool
     2. For reminders: use create_reminder, get_reminders, update_reminder, delete_reminder tools
     3. For current time: use get_current_datetime tool
 

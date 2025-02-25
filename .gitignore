@@ -166,3 +166,4 @@ cython_debug/
 # data
 backend/data/*.db
 backend/data/custom_rag/*.txt
+backend/data/reminders.db
