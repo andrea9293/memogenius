@@ -6,18 +6,28 @@ MemoGenius is an intelligent personal assistant that helps you manage reminders 
 
 ## ✨ Features
 
-- 🤖 Natural language interaction with AI assistant
+- 🤖 Natural language interaction with AI assistant in English and Italian
 - ⏰ Create, view, update, and delete reminders 
+- 🧠 Store and retrieve personal memories using vector search
 - 🔍 Search the web for real-time information
 - 🔄 Synchronization between Telegram and web interface
 - 🕒 Get current date and time information
 - 🔔 Automatic reminder notifications
 
+## 🛠️ Recent Improvements
+
+- **Thread-safe Memory Management**: Enhanced singleton pattern with thread locks for ChromaDB initialization
+- **Robust Function Handling**: Improved handling of multiple function calls in chat interactions
+- **Internationalized Codebase**: Full English/Italian bilingual support
+- **Enhanced Error Recovery**: Better handling of API failures and response validation
+- **Optimized Vector Search**: Improved memory retrieval accuracy
+
 ## 🛠️ Technical Stack
 
 ### Backend
 - FastAPI for REST API
-- SQLite database for data persistence
+- SQLite database for structured data persistence
+- ChromaDB for vector storage and semantic search
 - Google Gemini AI for natural language processing
 - Python Telegram Bot for Telegram integration
 - APScheduler for reminder scheduling
@@ -73,6 +83,8 @@ MemoGenius is an intelligent personal assistant that helps you manage reminders 
 ## 📝 Example Commands
 
 - "Remind me to call mom tomorrow at 6 PM"
+- "Remember that my WiFi password is 12345"
+- "What was my WiFi password again?"
 - "Show all my reminders"
 - "Search for the weather in New York"
 - "What time is it now?"
@@ -92,6 +104,8 @@ MemoGenius is an intelligent personal assistant that helps you manage reminders 
     - `database.py` - Database connection and session management
     - `dependencies.py` - FastAPI dependency injection helpers
     - `gemini_tools.py` - Tools for interaction with Google Gemini AI
+    - `memory_db.py` - Vector database for storing personal information
+    - `memory_tools.py` - Tools for interacting with the memory system
     - `models.py` - SQLAlchemy database models (User, Reminder)
     - `reminders.py` - CRUD operations for reminders
     - `scheduler.py` - Background job for sending reminder notifications
@@ -102,7 +116,7 @@ MemoGenius is an intelligent personal assistant that helps you manage reminders 
 
   - `data/` - Data storage
     - `reminders.db` - SQLite database
-    - `custom_rag/` - Custom retrieval-augmented generation data
+    - `custom_rag/` - ChromaDB vector storage for personal memories
 
 ## 🌐 API Documentation
 
@@ -124,3 +138,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - [Google Gemini AI](https://ai.google.dev/)
 - [Python Telegram Bot](https://python-telegram-bot.org/)
 - [FastAPI](https://fastapi.tiangolo.com/)
+- [ChromaDB](https://www.trychroma.com/)
