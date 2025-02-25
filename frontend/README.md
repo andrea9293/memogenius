@@ -1,50 +1,93 @@
-# React + TypeScript + Vite
+# MemoGenius Client 🧠✨
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+MemoGenius Client is a modern web application that serves as a personal assistant to help you manage reminders and chat with an AI assistant. This React-based frontend interfaces with a Python backend server to provide a seamless experience for organizing your life.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features 🚀
 
-## Expanding the ESLint configuration
+- **Smart Chat**: Interact with an AI assistant through a clean chat interface
+- **Reminder Management**: Create, edit, and delete reminders with due dates
+- **Dashboard**: Quick overview of your recent reminders and fast access to chat
+- **Responsive Design**: Works on both desktop and mobile devices
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Technologies Used 💻
 
-- Configure the top-level `parserOptions` property like this:
+- React 19
+- TypeScript
+- Material UI 6
+- Vite
+- Axios for API calls
+- React Router for navigation
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn
+- Backend server running (see [Backend Repository](../backend/))
+
+## Installation 🔧
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/andrea9293/memogenius.git
+   cd memogenius/frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file if needed (configure any environment variables)
+
+## Running the Application 🚀
+
+To start the development server:
+
+```bash
+npm run dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+The application will be available at `http://localhost:5173` by default.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## Building for Production
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+To create a production build:
+
+```bash
+npm run build
 ```
+
+The built files will be in the `dist` directory.
+
+## Backend Repository
+
+This client interfaces with a Python backend server. You can find the backend repository at: [Link to be provided]
+
+## Authentication 🔐
+
+The application uses a token-based authentication system. Users need to:
+
+1. Get an access key from the MemoGenius Telegram bot
+2. Enter this key in the web application login screen
+
+## Project Structure
+
+- `frontend/`
+  - `/components` - UI components organized by feature
+  - `/context` - React context providers for state management
+  - `/hooks` - Custom React hooks
+  - `/pages` - Main application pages
+  - `/services` - API service connections
+  - `/types` - TypeScript type definitions
+
+## Contributing 🤝
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the [GNU Affero General Public License v3.0](LICENSE) - see the LICENSE file for details.
+
+Copyright (c) 2024

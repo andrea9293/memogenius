@@ -1,158 +1,116 @@
-# MemoGenius
+# MemoGenius 🧠✨ - Your AI-Powered Personal Assistant
 
-MemoGenius is an intelligent personal assistant based on Telegram that helps you manage your reminders and much more. Powered by Gemini AI, it is capable of understanding your requests in natural language, creating contextual reminders, and providing informed responses thanks to Retrieval-Augmented Generation (RAG).
+## Overview
 
-## ✨ Features
+MemoGenius is an intelligent personal assistant that helps you manage reminders and access information through natural language conversations. The system combines a sleek React frontend with a powerful Python backend powered by Google Gemini AI, providing a seamless experience across both web and Telegram interfaces.
 
-* 📝 **Intelligent Reminder Management**
-  * Create, view, modify, and delete reminders
-  * Natural language understanding
-  * Contextual suggestions
-  * Automatic notifications when reminders are due
+## System Architecture 🏗️
 
-* 🔍 **Advanced Search (RAG)**
-  * Web search via Google Custom Search (Gemini 2.0 tool)
-  * Vector database (ChromaDB) (work in progress...)
-  * Custom text files (work in progress...)
+MemoGenius consists of two main components:
 
-* 🤖 **Artificial Intelligence**
-  * Gemini model for language processing
-  * Contextual and relevant answers
-  * CrewAI for agent orchestration (work in progress...)
-  * HTML formatted responses
+- **Frontend Client**: A modern React application for web interactions
+- **Backend Server**: A Python FastAPI service handling data persistence and AI processing
 
-* 💬 **Telegram Interface**
-  * Easy to use
-  * Accessible everywhere
-  * Real-time responses
+```mermaid
+graph LR
+    A[User] -->|Web Interface| B[React Frontend]
+    A -->|Telegram| C[Bot Interface]
+    B -->|API Calls| D[FastAPI Backend]
+    C -->|Internal Calls| D
+    D -->|AI Processing| E[Google Gemini]
+    D -->|Data Storage| F[SQLite]
+```
 
-## 🏗 Architecture
+## Features 🚀
 
-The system is built on modern and reliable components:
+- **Multi-Platform Access**: Use MemoGenius through Telegram or web interface
+- **Smart Conversations**: Natural language processing with Google Gemini AI
+- **Reminder Management**: Create, edit, and get notifications for important events
+- **Real-time Information**: Search capabilities to answer questions
+- **Synchronized Experience**: Consistent data across all platforms
 
-* **Frontend:** Telegram Bot
-* **Backend:** FastAPI Server
-* **Database:**
-  * SQLite for structured data
-  * ChromaDB for vectors
-* **AI:**
-  * Gemini API
-  * CrewAI
-* **Scheduler:**
-  * APScheduler for reminder notifications
+## Getting Started 🏁
 
-## 📋 Prerequisites
+### Prerequisites
 
-* Python 3.9+
-* Telegram Bot Token (from BotFather)
-* Gemini API Key
+- Node.js 16+ and npm/yarn for frontend
+- Python 3.8+ for backend
+- Google Gemini API key
+- Telegram Bot Token
 
-## 🚀 Installation
+### Installation
 
 1. Clone the repository:
-    ```bash
-    git clone https://github.com/andrea9293/memogenius.git
-    cd memogenius
-    ```
+   ```bash
+   git clone https://github.com/andrea9293/memogenius.git
+   cd memogenius
+   ```
 
-2. Create the virtual environment:
-    ```bash
-    python -m venv venv
-    ```
+2. Set up the backend:
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   # Create .env file with TELEGRAM_BOT_TOKEN and GEMINI_API_KEY
+   ```
 
-3. Activate the virtual environment:
-    * Windows:
-        ```bash
-        venv\Scripts\activate
-        ```
-    * macOS/Linux:
-        ```bash
-        source venv/bin/activate
-        ```
+3. Set up the frontend:
+   ```bash
+   cd ../frontend
+   npm install
+   ```
 
-4. Install the dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
+### Running the Application
 
-5. Configure the environment variables:
-   Create a `.env` file in the root of the project:
-    ```plaintext
-    TELEGRAM_BOT_TOKEN=<YOUR_TELEGRAM_TOKEN>
-    GEMINI_API_KEY=<YOUR_GEMINI_API_KEY>
-    ```
+1. Start the backend server:
+   ```bash
+   cd backend
+   python start_all.py
+   ```
 
-## 🎯 Execution
-### Activate the virtual environment
-    
-* Windows:
-```bash
-venv\Scripts\activate
-```
-* macOS/Linux:
-```bash
-source venv/bin/activate
-```
-### Unified Startup (Recommended)
-Start both the FastAPI server and the Telegram bot with a single command:
-```bash
-python start_all.py
-```
+2. Start the frontend development server:
+   ```bash
+   cd frontend
+   npm run dev
+   ```
 
-### Separate Startup
+3. Access the web interface at http://localhost:5173
 
-1. Telegram Bot Startup
-```bash
-python -m app.telegram_bot
-```
+## Project Structure 📁
 
-2. FastAPI Server Startup
-```bash
-uvicorn app.main:app --reload
-```
+- [`frontend/`](frontend/) - React frontend application
+  - Components, contexts, hooks, and pages for web interface
+  - [Detailed frontend documentation](frontend/README.md)
 
-## 📁 Project Structure
-```
-memogenius/
-├── app/                 # Application core
-│   ├── __init__.py
-│   ├── main.py         # FastAPI entry point
-│   ├── config.py       # Configurations
-│   ├── telegram_bot.py # Telegram Bot
-│   ├── reminders.py    # Reminder management
-│   ├── rag.py         # RAG Module
-│   ├── agents.py      # CrewAI Agents
-│   ├── models.py      # Database models
-│   ├── utils.py       # Utilities
-│   ├── database.py    # DB Connection
-│   ├── scheduler.py   # Reminder scheduler
-│   └── schemas.py     # Pydantic Schemas
-│
-├── data/               # Local data
-│   ├── reminders.db   # SQLite Database
-│   └── custom_rag/    # Files for RAG
-│
-├── tests/             # Tests
-├── .env              # Configuration
-├── requirements.txt  # Dependencies
-├── README.md        # Documentation
-└── .gitignore      # Git ignore
-```
+- [`backend/`](backend/) - Python FastAPI backend
+  - AI processing, database models, and API endpoints
+  - [Detailed backend documentation](backend/README.md)
 
-## 🌐 API Documentation
+## User Onboarding 🚪
 
-When the FastAPI server is running, access the API documentation at:
+1. Start a chat with the MemoGenius Telegram bot
+2. Use the `/key` command to get your web access key
+3. Use this key to log in to the web interface
 
-Swagger UI: http://127.0.0.1:8000/docs
-ReDoc: http://127.0.0.1:8000/redoc
+## Technologies Used 💻
 
-## 🤝 Contributing
+### Frontend
+- React 19 with TypeScript
+- Material UI 6
+- Vite for fast builds
+- React Router for navigation
 
-Contributions are welcome! Please feel free to submit pull requests.
+### Backend
+- FastAPI for high-performance API
+- SQLite for data persistence
+- Google Gemini API for AI capabilities
+- Python Telegram Bot for Telegram integration
 
+## Contributing 🤝
 
-## 📄 License
-This project is distributed under the AGPLv3 License.  
-See: [AGPLv3 License](https://www.gnu.org/licenses/agpl-3.0.en.html)  
+Contributions are welcome! Please feel free to submit a Pull Request.
 
+## License
 
+This project is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+
+Copyright (c) 2025
