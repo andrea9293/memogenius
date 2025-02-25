@@ -164,8 +164,5 @@ cython_debug/
 .env
 
 # data
-data/*.db
-data/custom_rag/*.txt
-
-# custom-ai-reminder specific
-data/reminders.db
+backend/data/*.db
+backend/data/custom_rag/*.txt
