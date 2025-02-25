@@ -19,6 +19,7 @@ graph LR
     C -->|Internal Calls| D
     D -->|AI Processing| E[Google Gemini]
     D -->|Data Storage| F[SQLite]
+    D -->|Vector Storage| G[ChromaDB]
 ```
 
 ## Features 🚀
@@ -26,8 +27,18 @@ graph LR
 - **Multi-Platform Access**: Use MemoGenius through Telegram or web interface
 - **Smart Conversations**: Natural language processing with Google Gemini AI
 - **Reminder Management**: Create, edit, and get notifications for important events
-- **Real-time Information**: Search capabilities to answer questions
+- **Personal Memory**: Store and retrieve personal information with vector search
+- **Real-time Information**: Search capabilities to answer questions from the web
+- **Multilingual Support**: Interaction in both English and Italian
 - **Synchronized Experience**: Consistent data across all platforms
+
+## Recent Improvements 🛠️
+
+- **Thread-safe Singleton Pattern**: Enhanced memory management with thread-safe initialization
+- **Improved Function Handling**: Better management of multiple AI function calls
+- **Internationalization**: Fully bilingual codebase with English and Italian support
+- **Enhanced Vector Search**: More accurate memory retrieval with ChromaDB
+- **Robust Error Handling**: Better user experience with graceful error recovery
 
 ## Getting Started 🏁
 
@@ -101,7 +112,8 @@ graph LR
 
 ### Backend
 - FastAPI for high-performance API
-- SQLite for data persistence
+- SQLite for structured data persistence
+- ChromaDB for vector storage
 - Google Gemini API for AI capabilities
 - Python Telegram Bot for Telegram integration
 
