@@ -16,6 +16,11 @@ export const ChatWindow = ({ messages, loading }: ChatWindowProps) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
+  // Function to safely render HTML
+  const createMarkup = (html: string) => {
+    return { __html: html };
+  };
+
   return (
     <Paper
       sx={{
@@ -65,9 +70,37 @@ export const ChatWindow = ({ messages, loading }: ChatWindowProps) => {
             boxShadow: message.sender === 'user'
               ? '0 2px 8px rgba(90,124,226,0.2)'
               : '0 2px 8px rgba(0,0,0,0.05)',
+            // Specific styles only for <pre> and <blockquote>
+            '& pre': {
+              backgroundColor: theme.palette.mode === 'dark' 
+                ? 'rgba(0, 0, 0, 0.2)' 
+                : 'rgba(0, 0, 0, 0.04)',
+              padding: theme.spacing(1.5),
+              borderRadius: theme.spacing(1),
+              overflowX: 'auto',
+              fontFamily: 'monospace',
+              fontSize: '0.875rem',
+              margin: theme.spacing(1, 0),
+            },
+            '& blockquote': {
+              borderLeft: `4px solid ${theme.palette.divider}`,
+              margin: theme.spacing(1, 0),
+              paddingLeft: theme.spacing(2),
+              opacity: 0.8,
+              fontStyle: 'italic',
+            },
           }}
         >
-          <Typography variant="body1">{message.text}</Typography>
+          {/* Render as HTML instead of plain text */}
+          {message.sender === 'user' ? (
+            <Typography variant="body1">{message.text}</Typography>
+          ) : (
+            <Typography 
+              variant="body1" 
+              component="div" 
+              dangerouslySetInnerHTML={createMarkup(message.text)} 
+            />
+          )}
         </Box>
       ))}
 

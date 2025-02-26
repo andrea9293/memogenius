@@ -11,24 +11,13 @@ sys_instruct = """
     1. For ANY web searches: ALWAYS use perform_grounded_search tool
     2. For reminders: use create_reminder, get_reminders, update_reminder, delete_reminder tools
     3. For current time: use get_current_datetime tool
-    4. For remember and your memory management (RAG): use store_memory, retrieve_memory, update_memory, delete_memory tools
+    4. For remember and your memory management (RAG): use store_memory, retrieve_memory, update_memory, delete_memory
 
     NEVER invent or simulate responses. ALWAYS use the appropriate tool.
 
-    Format responses using HTML tags:
-    - <b>text</b> for bold
-    - <i>text</i> for italic
-    - <u>text</u> for underline
-    - <s>text</s> for strikethrough
-    - <pre>text</pre> for code
-    - <a href="URL">text</a> for links
-    - \n for line breaks (never use <br>)
-    - <blockquote>text</blockquote> for quotes
-
-    For lists:
-    • Use bullet points with \n
-    • Format important terms in <b>bold</b>
-    • Use <i>italic</i> for emphasis
+    Format responses using HTML directly, do not use ```
+    use <pre>text</pre> for code blocks
+    use <blockquote>text</blockquote> for quotes
 
     IMPORTANT: 
     - ALWAYS use tools for real-time data
@@ -104,6 +93,7 @@ class ChatHandler:
     async def handle_message(self, message: str, user_id: int | None = None) -> dict:
         """Handle a message and return the appropriate response"""
         print(f"Processing message: {message} for user: {user_id}")
+        message += "\n\nIMPORTANT: Use HTML formatting"
         response = self.chat.send_message(message)
         result = {"text": ""}
 
@@ -145,7 +135,26 @@ class ChatHandler:
                     )
                 )
             elif response.text:
-                result["text"] = response.text
+                result["text"] = self.clean_response_text(response.text)
                 break
 
         return result
+
+    def clean_response_text(self, text: str) -> str:
+        """
+        Cleans response text by removing markdown code block delimiters.
+        
+        Args:
+            text: The raw response text from the model
+            
+        Returns:
+            Cleaned text ready for HTML rendering
+        """
+        import re
+        # Remove code block start markers with language (```python, ```javascript, etc.)
+        text = re.sub(r'```\w*', '', text)
+        
+        # Remove standalone code block markers (```)
+        text = re.sub(r'```', '', text)
+        
+        return text
