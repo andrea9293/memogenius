@@ -7,13 +7,13 @@ from .dependencies import get_from_user_id
 
 store_memory_declaration = types.FunctionDeclaration(
     name="store_memory",
-    description="Store a user's personal information. Invoke this function for every single information but do not aggregate informations, invoke one by one",
+    description="Store a user's personal information. You MUST use this tool whenever the user asks you to remember something. Invoke this function for EACH piece of information separately - do not aggregate information.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
             "content": types.Schema(
                 type=types.Type.STRING, 
-                description="The content to store (e.g., 'the WiFi password is 12345')."
+                description="The exact content to store (e.g., 'the WiFi password is 12345'). Include ALL relevant details."
             ),
             "category": types.Schema(
                 type=types.Type.STRING,
@@ -26,13 +26,13 @@ store_memory_declaration = types.FunctionDeclaration(
 
 retrieve_memory_declaration = types.FunctionDeclaration(
     name="retrieve_memory",
-    description="Search for previously stored information.",
+    description="Search for previously stored information. You MUST use this tool whenever the user asks for information that might have been stored before. Based on the conversation context, automatically invent and formulate the most relevant search query even if the user hasn't explicitly mentioned what to search for.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
             "query": types.Schema(
                 type=types.Type.STRING, 
-                description="The search query (e.g., 'WiFi password')."
+                description="The search query you inferred from the conversation context (e.g., if the user asks 'what was the password?', you can infer 'WiFi password' or other relevant passwords)."
             ),
             "limit": types.Schema(
                 type=types.Type.INTEGER,
@@ -45,17 +45,17 @@ retrieve_memory_declaration = types.FunctionDeclaration(
 
 update_memory_declaration = types.FunctionDeclaration(
     name="update_memory",
-    description="Update previously stored information.",
+    description="Update previously stored information. You MUST use this tool when the user asks to change or update information that was previously stored.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
             "query": types.Schema(
                 type=types.Type.STRING, 
-                description="Query to find the information to update (e.g., 'WiFi password')."
+                description="Query to find the information to update (e.g., 'WiFi password'). Be as specific as possible."
             ),
             "new_content": types.Schema(
                 type=types.Type.STRING,
-                description="The complete new content to store."
+                description="The complete new content to store with ALL relevant details."
             ),
         },
         required=["query", "new_content"],
@@ -64,13 +64,13 @@ update_memory_declaration = types.FunctionDeclaration(
 
 delete_memory_declaration = types.FunctionDeclaration(
     name="delete_memory",
-    description="Delete stored information.",
+    description="Delete stored information. You MUST use this tool when the user asks to delete or remove previously stored information.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
             "query": types.Schema(
                 type=types.Type.STRING, 
-                description="Query to find the information to delete (e.g., 'WiFi password')."
+                description="Query to find the information to delete (e.g., 'WiFi password'). Be as specific as possible."
             ),
         },
         required=["query"],
