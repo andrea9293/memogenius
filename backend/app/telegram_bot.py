@@ -66,6 +66,8 @@ def escape_html(text: str) -> str:
         line = line.replace('</html>', '')
         line = line.replace('<body>', '')
         line = line.replace('</body>', '')
+        line = line.replace('<strong>', '<b>')
+        line = line.replace('</<strong>', '</b>')
         line = line.replace('<h1>', '<b>')
         line = line.replace('</h1>', '</b>')
         line = line.replace('<h2>', '<b>')

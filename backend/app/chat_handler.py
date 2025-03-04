@@ -45,7 +45,8 @@ class ChatHandler:
         
         self.config = types.GenerateContentConfig(
             system_instruction=sys_instruct,
-            temperature=0.7
+            temperature=1.5,
+            max_output_tokens=5000
         )
         
         self.chat = self.client.chats.create(

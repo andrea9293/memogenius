@@ -36,7 +36,8 @@ class IntentRecognizer:
         
         self.config = types.GenerateContentConfig(
             system_instruction=sys_instruction,
-            temperature=0.0
+            temperature=0.0,
+            max_output_tokens=5000
         )
         
         # Create a persistent chat
