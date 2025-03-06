@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, Body
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from . import reminders, database, schemas, models
-from .database import get_db
+from .database import get_db, SessionLocal
 from .chat_handler import ChatHandler
 from .schemas import ChatMessage
 from .dependencies import get_current_user
@@ -26,6 +26,13 @@ def startup_event():
     # Inizializza esplicitamente ChromaDB
     from .memory_db import get_memory_db
     get_memory_db()
+    
+    # Crea le liste predefinite per tutti gli utenti esistenti
+    from . import lists
+    with SessionLocal() as db:  # Ora SessionLocal è definito
+        users = db.query(models.User).all()
+        for user in users:
+            lists.ensure_user_lists_exist(db, user.id)
 
 @app.post("/auth/web-login", response_model=schemas.User)
 def web_login(

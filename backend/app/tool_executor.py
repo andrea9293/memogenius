@@ -1,4 +1,4 @@
-from . import gemini_tools, memory_tools
+from . import gemini_tools, memory_tools, list_tools
 
 class ToolExecutor:
     def __init__(self):
@@ -18,7 +18,16 @@ class ToolExecutor:
             "store_memory": memory_tools.store_memory_tool,
             "retrieve_memory": memory_tools.retrieve_memory_tool,
             "update_memory": memory_tools.update_memory_tool,
-            "delete_memory": memory_tools.delete_memory_tool
+            "delete_memory": memory_tools.delete_memory_tool,
+            
+            # List tools
+            "get_list": list_tools.get_list_tool,
+            "update_list_title": list_tools.update_list_title_tool,
+            "clear_list": list_tools.clear_list_tool,
+            "add_list_item": list_tools.add_list_item_tool,
+            "update_list_item": list_tools.update_list_item_tool,
+            "delete_list_item": list_tools.delete_list_item_tool,
+            "mark_list_item_completed": list_tools.mark_list_item_completed_tool
         }
     
     async def execute_tool(self, tool_name, parameters):

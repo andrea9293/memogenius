@@ -176,9 +176,11 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         original_text = ''
         if update.effective_message and hasattr(context, 'bot_data') and 'last_response' in context.bot_data:
             original_text = context.bot_data['last_response']
+            
+        print(f"An error occurred: {error} while processing the message. Please try again. \n\n{original_text}")
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"An error occurred ({error}) while processing the message. Please try again. \n\n{original_text}",
+            text=f"An error occurred: {error} while processing the message Please try again \n\n{html.escape(original_text)}",
             parse_mode=ParseMode.HTML
         )
         print(f"Unhandled error: {error}")

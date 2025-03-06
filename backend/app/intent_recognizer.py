@@ -67,96 +67,148 @@ class IntentRecognizer:
         # Build the prompt with information about available tools
         tools_info = """
         Available tools and their detailed descriptions:
-        
+
         === REMINDER TOOLS ===
-        
+
         1. create_reminder:
-           Description: Creates a new reminder for the user.
-           Parameters:
-           - text (required): The text content of the reminder.
-           - due_date (required): Due date and time in ISO 8601 format (YYYY-MM-DDTHH:MM:SS).
-           Example: "Create a reminder for tomorrow's meeting at 3:00 PM" -> {"action": "use_tool", "tool_name": "create_reminder", "parameters": {"text": "Meeting", "due_date": "2024-06-11T15:00:00"}}
-           
+        Description: Creates a new reminder for the user.
+        Parameters:
+        - text (required): The text content of the reminder.
+        - due_date (required): Due date and time in ISO 8601 format (YYYY-MM-DDTHH:MM:SS).
+        Example: "Create a reminder for tomorrow's meeting at 3:00 PM" -> {"action": "use_tool", "tool_name": "create_reminder", "parameters": {"text": "Meeting", "due_date": "2024-06-11T15:00:00"}}
+        
         2. get_reminders:
-           Description: Retrieves the user's existing reminders.
-           Optional parameters:
-           - skip (optional): Number of reminders to skip (for pagination).
-           - limit (optional): Maximum number of reminders to return.
-           Example: "Show me my reminders" -> {"action": "use_tool", "tool_name": "get_reminders", "parameters": {}}
-           
+        Description: Retrieves the user's existing reminders.
+        Optional parameters:
+        - skip (optional): Number of reminders to skip (for pagination).
+        - limit (optional): Maximum number of reminders to return.
+        Example: "Show me my reminders" -> {"action": "use_tool", "tool_name": "get_reminders", "parameters": {}}
+        
         3. update_reminder:
-           Description: Updates an existing reminder.
-           Parameters:
-           - reminder_id (required): ID of the reminder to update.
-           - text (required): New text content of the reminder.
-           - due_date (required): New date and time in ISO 8601 format.
-           - is_active (required): New status of the reminder, true if active, false otherwise.
-           Example: "Update reminder 5 with 'Doctor' for the day after tomorrow at 9" -> {"action": "use_tool", "tool_name": "update_reminder", "parameters": {"reminder_id": 5, "text": "Doctor", "due_date": "2024-06-12T09:00:00", "is_active": true}}
-           
+        Description: Updates an existing reminder.
+        Parameters:
+        - reminder_id (required): ID of the reminder to update.
+        - text (required): New text content of the reminder.
+        - due_date (required): New date and time in ISO 8601 format.
+        - is_active (required): New status of the reminder, true if active, false otherwise.
+        Example: "Update reminder 5 with 'Doctor' for the day after tomorrow at 9" -> {"action": "use_tool", "tool_name": "update_reminder", "parameters": {"reminder_id": 5, "text": "Doctor", "due_date": "2024-06-12T09:00:00", "is_active": true}}
+        
         4. delete_reminder:
-           Description: Deletes a reminder.
-           Parameters:
-           - reminder_id (required): ID of the reminder to delete.
-           Example: "Delete reminder number 3" -> {"action": "use_tool", "tool_name": "delete_reminder", "parameters": {"reminder_id": 3}}
-           
+        Description: Deletes a reminder.
+        Parameters:
+        - reminder_id (required): ID of the reminder to delete.
+        Example: "Delete reminder number 3" -> {"action": "use_tool", "tool_name": "delete_reminder", "parameters": {"reminder_id": 3}}
+        
+        === LIST TOOLS ===
+
+        5. get_list:
+        Description: Retrieves one of the user's lists (todo or shopping) with all its items.
+        Parameters:
+        - list_type (required): Type of list to retrieve: 'todo' or 'shopping'.
+        Example: "Show me my shopping list" -> {"action": "use_tool", "tool_name": "get_list", "parameters": {"list_type": "shopping"}}
+        Example: "Show me my to do list" -> {"action": "use_tool", "tool_name": "get_list", "parameters": {"list_type": "todo"}}
+        
+        6. update_list_title:
+        Description: Updates the title of one of the user's lists.
+        Parameters:
+        - list_type (required): Type of list to update: 'todo' or 'shopping'.
+        - title (required): New title for the list.
+        Example: "Rename my todo list to 'Weekly Tasks'" -> {"action": "use_tool", "tool_name": "update_list_title", "parameters": {"list_type": "todo", "title": "Weekly Tasks"}}
+        
+        7. clear_list:
+        Description: Removes all items from one of the user's lists.
+        Parameters:
+        - list_type (required): Type of list to clear: 'todo' or 'shopping'.
+        Example: "Clear my shopping list" -> {"action": "use_tool", "tool_name": "clear_list", "parameters": {"list_type": "shopping"}}
+        
+        8. add_list_item:
+        Description: Adds a new item to one of the user's lists.
+        Parameters:
+        - list_type (required): Type of list to add to: 'todo' or 'shopping'.
+        - text (required): Text content of the item.
+        - completed (optional): Whether the item is completed (default: false).
+        Example: "Add milk to my shopping list" -> {"action": "use_tool", "tool_name": "add_list_item", "parameters": {"list_type": "shopping", "text": "Milk"}}
+        
+        9. update_list_item:
+        Description: Updates an existing item in one of the user's lists.
+        Parameters:
+        - item_id (required): ID of the item to update.
+        - text (optional): New text content for the item.
+        - completed (optional): New completion status for the item.
+        Example: "Update item 2 in my list to 'Buy whole milk'" -> {"action": "use_tool", "tool_name": "update_list_item", "parameters": {"item_id": 2, "text": "Buy whole milk"}}
+        
+        10. delete_list_item:
+            Description: Removes an item from one of the user's lists.
+            Parameters:
+            - item_id (required): ID of the item to delete.
+            Example: "Remove item 3 from my list" -> {"action": "use_tool", "tool_name": "delete_list_item", "parameters": {"item_id": 3}}
+            
+        11. mark_list_item_completed:
+            Description: Marks an item as completed or uncompleted.
+            Parameters:
+            - item_id (required): ID of the item to mark.
+            - completed (optional): Whether to mark as completed (true) or uncompleted (false). Default is true.
+            Example: "Mark item 4 as completed" -> {"action": "use_tool", "tool_name": "mark_list_item_completed", "parameters": {"item_id": 4, "completed": true}}
+            
         === SEARCH AND UTILITY TOOLS ===
-        
-        5. perform_deep_search:
-           Description: Performs a web search to obtain real-time information. Must be used for questions about current events, facts, weather, news, sports, or information that might not be known. Never simulate web search results.
-           Parameters:
-           - queryList (required): List of specific search queries that will provide the most relevant results for the user's question. the defualt is 2 queries but can be more up to 10.
-           Example: "What are the latest news about NVIDIA?" -> {"action": "use_tool", "tool_name": "perform_deep_search", "parameters": {"queryList": ["latest news NVIDIA technology AI today", "latest news NVIDIA stock price today"]}}
-           
+
+        12. perform_deep_search:
+            Description: Performs a web search to obtain real-time information. Must be used for questions about current events, facts, weather, news, sports, or information that might not be known. Never simulate web search results.
+            Parameters:
+            - queryList (required): List of specific search queries that will provide the most relevant results for the user's question. the defualt is 2 queries but can be more up to 10.
+            Example: "What are the latest news about NVIDIA?" -> {"action": "use_tool", "tool_name": "perform_deep_search", "parameters": {"queryList": ["latest news NVIDIA technology AI today", "latest news NVIDIA stock price today"]}}
+            
         === MEMORY TOOLS ===
-        
-        7. store_memory:
-           Description: Stores the user's personal information. You must use this tool whenever the user asks to remember something. Invoke this function for EACH piece of information separately - do not aggregate information.
-           Parameters:
-           - content (required): The exact content to store (e.g., "the WiFi password is 12345"). Include ALL relevant details.
-           - category (optional): The category of the information (e.g., "password", "birthday", "recipe").
-           Example: "Remember that my mother's birthday is May 15" -> {"action": "use_tool", "tool_name": "store_memory", "parameters": {"content": "The user's mother's birthday is May 15", "category": "birthday"}}
-           
-        8. retrieve_memory:
-           Description: Searches for previously stored information. You must use this tool whenever the user asks for information that might have been stored previously. Based on the conversation context, automatically invent and formulate the most relevant search query even if the user has not explicitly mentioned what to search for.
-           Parameters:
-           - query (required): The search query you deduced from the conversation context.
-           - limit (optional): Maximum number of results to return.
-           Example: "What was the WiFi password?" -> {"action": "use_tool", "tool_name": "retrieve_memory", "parameters": {"query": "WiFi password", "limit": 3}}
-           
-        9. update_memory:
-           Description: Updates previously stored information. You must use this tool when the user asks to change or update previously stored information.
-           Parameters:
-           - query (required): Query to find the information to update (e.g., "WiFi password"). Be as specific as possible.
-           - new_content (required): The new complete content to store with ALL relevant details.
-           Example: "Update the WiFi password to ABC123" -> {"action": "use_tool", "tool_name": "update_memory", "parameters": {"query": "WiFi password", "new_content": "The WiFi password is ABC123"}}
-           
-        10. delete_memory:
+
+        13. store_memory:
+            Description: Stores the user's personal information. You must use this tool whenever the user asks to remember something. Invoke this function for EACH piece of information separately - do not aggregate information.
+            Parameters:
+            - content (required): The exact content to store (e.g., "the WiFi password is 12345"). Include ALL relevant details.
+            - category (optional): The category of the information (e.g., "password", "birthday", "recipe").
+            Example: "Remember that my mother's birthday is May 15" -> {"action": "use_tool", "tool_name": "store_memory", "parameters": {"content": "The user's mother's birthday is May 15", "category": "birthday"}}
+            
+        14. retrieve_memory:
+            Description: Searches for previously stored information. You must use this tool whenever the user asks for information that might have been stored previously. Based on the conversation context, automatically invent and formulate the most relevant search query even if the user hasn't explicitly mentioned what to search for.
+            Parameters:
+            - query (required): The search query you deduced from the conversation context.
+            - limit (optional): Maximum number of results to return.
+            Example: "What was the WiFi password?" -> {"action": "use_tool", "tool_name": "retrieve_memory", "parameters": {"query": "WiFi password", "limit": 3}}
+            
+        15. update_memory:
+            Description: Updates previously stored information. You must use this tool when the user asks to change or update previously stored information.
+            Parameters:
+            - query (required): Query to find the information to update (e.g., "WiFi password"). Be as specific as possible.
+            - new_content (required): The new complete content to store with ALL relevant details.
+            Example: "Update the WiFi password to ABC123" -> {"action": "use_tool", "tool_name": "update_memory", "parameters": {"query": "WiFi password", "new_content": "The WiFi password is ABC123"}}
+            
+        16. delete_memory:
             Description: Deletes stored information. You must use this tool when the user asks to delete or remove previously stored information.
             Parameters:
             - query (required): Query to find the information to delete (e.g., "WiFi password"). Be as specific as possible.
             Example: "Forget the WiFi password" -> {"action": "use_tool", "tool_name": "delete_memory", "parameters": {"query": "WiFi password"}}
-        
+
         HANDLING COMPLEX SCENARIOS:
-        
+
         1. If you need clarification: 
-           Example: "Remind me of something" -> {"action": "clarify", "clarification_question": "What exactly would you like me to remember?"}
-           
-        2. For multi-step operations (e.g., "create 2 reminders for tomorrow at 12 AM and 3 PM for to buy milk and chocolate"):
-           Example: {"action": "use_tool", "execution_plan": [
-              {"tool_name": "create_reminder", "parameters": {"text": "Buy milk", "due_date": "2024-06-11T00:00:00"}},
-              {"tool_name": "create_reminder", "parameters": {"text": "Buy chocolate", "due_date": "2024-06-11T15:00:00"}}
-           ]}
-           
-        3. For direct responses without needing a tool:
-           Example: "How are you?" -> {"action": "direct_answer"}
-           
-        4. For requests that require confirmation or when the user explicitly asks for confirmation:
-           Example: "Do a deep search with 5 queries but do not execute them, show me the query before you execute them" -> {"action": "confirmation", "request_confirmation": "These are the queries: *list of queries*"}
-           
-        5. For errors or unexpected situations:
-           Example: "search latest new on web. do 15 queries " -> {"action": "error", "error_message": "I'm sorry, i can perform only 10 queries at a time"}
-        """
+        Example: "Remind me of something" -> {"action": "clarify", "clarification_question": "What exactly would you like me to remember?"}
         
+        2. For multi-step operations (e.g., "add milk, eggs, and bread to my shopping list"):
+        Example: {"action": "use_tool", "execution_plan": [
+            {"tool_name": "add_list_item", "parameters": {"list_type": "shopping", "text": "Milk"}},
+            {"tool_name": "add_list_item", "parameters": {"list_type": "shopping", "text": "Eggs"}},
+            {"tool_name": "add_list_item", "parameters": {"list_type": "shopping", "text": "Bread"}}
+        ]}
+        
+        3. For direct responses without needing a tool:
+        Example: "How are you?" -> {"action": "direct_answer"}
+        
+        4. For requests that require confirmation or when the user explicitly asks for confirmation:
+        Example: "Do a deep search with 5 queries but do not execute them, show me the query before you execute them" -> {"action": "confirmation", "request_confirmation": "These are the queries: *list of queries*"}
+        
+        5. For errors or unexpected situations:
+        Example: "search latest news on web. do 15 queries " -> {"action": "error", "error_message": "I'm sorry, i can perform only 10 queries at a time"}
+        """
+
         # Build the complete prompt
         if self.in_clarification:
             # If we're in the clarification phase, inform the model that the response is related to the previous request
