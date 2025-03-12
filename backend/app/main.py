@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Body
+from fastapi import FastAPI, Depends, HTTPException, status, Body, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from . import reminders, database, schemas, models
@@ -133,3 +133,110 @@ def delete_reminder(
     if not db_reminder:
         raise HTTPException(status_code=404, detail="Reminder not found")
     return db_reminder
+
+@app.post("/alexa/intent")
+async def handle_alexa_intent(request: Request):
+    data = await request.json()
+    
+    # Extract information from Alexa request
+    session = data.get('session', {})
+    intent_request = data.get('request', {})
+    intent_type = intent_request.get('type')
+    
+    # Detailed logging for debugging
+    print(f"Alexa request received: {intent_type}")
+    print(f"Request details: {intent_request}")
+    
+    # Get or generate a stable user ID for Alexa
+    alexa_user_id = "123456" #TODO Use a fixed user ID or session.get('user', {}).get('userId')
+    
+    # Handle different request types
+    if intent_type == 'LaunchRequest':
+        # Welcome message
+        response_text = "Benvenuto in MemoGenius. Come posso aiutarti?"
+    elif intent_type == 'IntentRequest':
+        intent = intent_request.get('intent', {})
+        intent_name = intent.get('name')
+        
+        # Only handle exit intents separately
+        if intent_name in ['AMAZON.StopIntent', 'AMAZON.CancelIntent']:
+            response_text = "Arrivederci!"
+            return {
+                "version": "1.0",
+                "response": {
+                    "outputSpeech": {
+                        "type": "SSML",
+                        "ssml": f"<speak>{response_text}</speak>"
+                    },
+                    "shouldEndSession": True  # Close the session to exit
+                }
+            }
+        else:
+            # For ALL other intents (including Help, Fallback, Query, etc.)
+            # Extract user message in different possible ways
+            user_message = ""
+            
+            # Try to get the message from the Message slot if available
+            if 'slots' in intent and 'Message' in intent.get('slots', {}):
+                user_message = intent.get('slots', {}).get('Message', {}).get('value', '')
+                print(f"Message extracted from slot: '{user_message}'")
+            
+            # If there's no explicit message and it's HelpIntent
+            if not user_message and intent_name == 'AMAZON.HelpIntent':
+                user_message = "aiuto"
+            
+            # For FallbackIntent, use the recognized text if available
+            if not user_message or intent_name == 'AMAZON.FallbackIntent':
+                # When Alexa doesn't understand, suggest the correct pattern
+                response_text = "Non ho capito. Prova a iniziare la tua frase con 'memo genius' seguito dalla tua richiesta."
+                return {
+                    "version": "1.0",
+                    "response": {
+                        "outputSpeech": {
+                            "type": "SSML",
+                            "ssml": f"<speak>{response_text}</speak>"
+                        },
+                        "shouldEndSession": False,
+                        "reprompt": {
+                            "outputSpeech": {
+                                "type": "SSML",
+                                "ssml": "<speak>Puoi dire 'memo genius' seguito dalla tua domanda.</speak>"
+                            }
+                        }
+                    }
+                }
+            
+            # Send any message to the chat_handler
+            print(f"Sending to chat_handler: '{user_message}'")
+            response = await chat_handler.handle_message(user_message, alexa_user_id)
+            response_text = response.get('text', 'Mi dispiace, non sono riuscito a elaborare la richiesta.')
+    else:
+        # For any other type of request (SessionEndedRequest, etc.)
+        response_text = "Non ho capito. Puoi ripetere?"
+    
+    # Clean up text for Alexa (remove HTML)
+    from html import unescape
+    import re
+    
+    clean_text = re.sub(r'<[^>]*>', '', response_text)
+    clean_text = unescape(clean_text)
+    
+    # Prepare the response while keeping the session open
+    return {
+        "version": "1.0",
+        "response": {
+            "outputSpeech": {
+                "type": "SSML",
+                "ssml": f"<speak>{clean_text}</speak>"
+            },
+            "shouldEndSession": False,  # Keep the session open
+            "reprompt": {
+                "outputSpeech": {
+                    "type": "SSML",
+                    "ssml": "<speak>Posso aiutarti con altro?</speak>"
+                }
+            }
+        }
+    }
+
+
