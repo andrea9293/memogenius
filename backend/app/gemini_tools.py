@@ -76,15 +76,31 @@ delete_reminder_declaration = types.FunctionDeclaration(
     ),
 )
 
-perform_grounded_search_declaration = types.FunctionDeclaration(
-    name="perform_grounded_search",
-    description="Performs a web search. The output should include dates and times in Italian format and timezone. Always include source links.",
+# perform_grounded_search_declaration = types.FunctionDeclaration(
+#     name="perform_grounded_search",
+#     description="Performs a simple web search to get real-time information. You MUST use this tool for ANY simple question that needs a web search. Never simulate web search results. The output should include dates and times in Italian format and timezone.",
+#     parameters=types.Schema(
+#         type=types.Type.OBJECT,
+#         properties={
+#             "query": types.Schema(type=types.Type.STRING, description="The specific search query that will give the most relevant results for the user's question."),
+#         },
+#         required=["query"],
+#     ),
+# )
+
+perform_deep_search_declaration = types.FunctionDeclaration(
+    name="perform_deep_search",
+    description="Performs a web search using multiple queries to get comprehensive real-time information. You MUST use this tool for any questions about current events, facts, weather, news, sports, or information you might not know and needs a research on web. Never simulate web search results. Maximum 10 queries allowed. The output should include dates and times in Italian format and timezone. Always include source links",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
-            "query": types.Schema(type=types.Type.STRING, description="The search query."),
+            "queryList": types.Schema(
+                type=types.Type.ARRAY,
+                items=types.Schema(type=types.Type.STRING),
+                description="List of specific search queries (maximum 10) that will give the most relevant results for the user's question."
+            ),
         },
-        required=["query"],
+        required=["queryList"],
     ),
 )
 
@@ -130,7 +146,7 @@ def create_reminder_tool(user_id: int | str, text: str, due_date: str) -> Dict[s
         try:
             due_date_dt = datetime.fromisoformat(due_date)
         except ValueError:
-            return {"error": "Invalid date format. Use ISO 8601 (YYYY-MM-DDTHH:MM:SS)."}
+            return {"confirm_needed": "Ask confirmation for the due date and hour"}
 
         reminder_data = {
             "user_id": real_user_id,
@@ -215,7 +231,7 @@ def delete_reminder_tool(reminder_id: int, user_id: int | None = None) -> Dict[s
     print(f"Deleting reminder: {reminder_id}")
     db = SessionLocal()
     try:
-        result = reminders.delete_reminder(db, reminder_id)
+        result = reminders.delete_reminder(db, reminder_id, user_id)
         
         if result:
             return {
@@ -232,13 +248,21 @@ def delete_reminder_tool(reminder_id: int, user_id: int | None = None) -> Dict[s
     finally:
         db.close()
 
+def perform_deep_search(queryList: List[str], user_id: int | None = None) -> str:
+    if len(queryList) > 10:
+        return {"error": "You can perform a maximum of 10 queries at a time"}
+    result = ''
+    for query in queryList:
+        result += "results for query: " + query + '\n' + perform_grounded_search(query, user_id) + '\n\n'
+    return result
+    
 def perform_grounded_search(query: str, user_id: int | None = None) -> str:
-    print("perform_grounded_search")
+    print(f"perform_grounded_search query: {query}")
 
     sys_instruct = """
         You are a web search expert who optimizes and transforms requests into effective web searches.
         Use exclusively your web search tool and only look for real, current results from the web.
-        Always include and cite your sources.
+        Don't just use bullet points, be more conversational
     """
 
     client = genai.Client(api_key=settings.GEMINI_API_KEY)
@@ -247,7 +271,7 @@ def perform_grounded_search(query: str, user_id: int | None = None) -> str:
     google_search_tool = types.Tool(
         google_search = types.GoogleSearch()
     )
-    print("perform_grounded_search 2")
+
     response = client.models.generate_content(
         model=model_id,
         contents=f"search on web using your GoogleSearch tool: {query}",
@@ -259,8 +283,6 @@ def perform_grounded_search(query: str, user_id: int | None = None) -> str:
         )
     )
     
-    print(response)
-
     res=''
     for each in response.candidates[0].content.parts:
         # print(each.text)
@@ -271,7 +293,7 @@ def perform_grounded_search(query: str, user_id: int | None = None) -> str:
     
     res = res + ' | sources: ' + str(response.candidates[0].grounding_metadata.grounding_chunks)
     
-    print(res)
+    # print(res)
     return res
 
 def get_current_datetime(dummyParameter: str = "", user_id: int | None = None) -> str:

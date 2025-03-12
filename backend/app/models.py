@@ -22,3 +22,24 @@ class User(Base):
     telegram_id = Column(Integer, unique=True, nullable=True)
     web_token = Column(String, unique=True, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+
+class List(Base):
+    __tablename__ = "lists"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True)
+    title = Column(String, nullable=False)
+    type = Column(String, nullable=False)  # "todo" o "shopping"
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+class ListItem(Base):
+    __tablename__ = "list_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    list_id = Column(Integer, index=True)
+    text = Column(String, nullable=False)
+    completed = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
