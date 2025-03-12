@@ -2,7 +2,7 @@
 
 ## 📱 Personal Assistant with AI-powered features
 
-MemoGenius is an intelligent personal assistant that helps you manage reminders and find information through natural language conversations. Built with Google Gemini AI, it provides a seamless experience across both Telegram and web interfaces.
+MemoGenius is an intelligent personal assistant that helps you manage reminders and find information through natural language conversations. Built with Google Gemini AI, it provides a seamless experience across Telegram, web interfaces, and now Alexa devices.
 
 ## ✨ Features
 
@@ -10,12 +10,14 @@ MemoGenius is an intelligent personal assistant that helps you manage reminders 
 - ⏰ Create, view, update, and delete reminders 
 - 🧠 Store and retrieve personal memories using vector search
 - 🔍 Search the web for real-time information
-- 🔄 Synchronization between Telegram and web interface
+- 🔄 Synchronization between Telegram, web interface, and Alexa
 - 🕒 Get current date and time information
 - 🔔 Automatic reminder notifications
+- 🔊 Voice interaction via Amazon Alexa devices
 
 ## 🛠️ Recent Improvements
 
+- **Alexa Integration**: Full support for Amazon Alexa, allowing voice interaction with MemoGenius
 - **Thread-safe Memory Management**: Enhanced singleton pattern with thread locks for ChromaDB initialization
 - **Robust Function Handling**: Improved handling of multiple function calls in chat interactions
 - **Internationalized Codebase**: Full English/Italian bilingual support
@@ -30,10 +32,12 @@ MemoGenius is an intelligent personal assistant that helps you manage reminders 
 - ChromaDB for vector storage and semantic search
 - Google Gemini AI for natural language processing
 - Python Telegram Bot for Telegram integration
+- Amazon Alexa Skills Kit for voice interaction
 - APScheduler for reminder scheduling
 
 ### Frontend
 - React-based web interface: [React Client Link](../frontend/)
+- Alexa voice interface for Echo devices
 
 ## 🚀 Installation
 
@@ -41,6 +45,7 @@ MemoGenius is an intelligent personal assistant that helps you manage reminders 
 - Python 3.8+
 - Telegram Bot Token
 - Google Gemini API Key
+- Amazon Developer Account (for Alexa integration)
 
 ### Steps
 
@@ -80,14 +85,28 @@ MemoGenius is an intelligent personal assistant that helps you manage reminders 
 2. Enter your access key from Telegram
 3. Enjoy the same functionalities through the web UI
 
+### Alexa Interface
+1. Configure the Alexa Skill as described in the integration guide
+2. Invoke the skill with "Alexa, open memo genius"
+3. Interact naturally by speaking your requests
+4. Use phrases like "memo genius what are my reminders" for best results
+
 ## 📝 Example Commands
 
+### Text Commands (Telegram & Web)
 - "Remind me to call mom tomorrow at 6 PM"
 - "Remember that my WiFi password is 12345"
 - "What was my WiFi password again?"
 - "Show all my reminders"
 - "Search for the weather in New York"
 - "What time is it now?"
+
+### Voice Commands (Alexa)
+- "Alexa, open memo genius"
+- "memo genius what are my reminders"
+- "neko remind me to buy milk tomorrow"
+- "memo genius search for the latest news about AI"
+- "memo genius add pasta to my shopping list"
 
 ## 🔧 Development
 
@@ -118,6 +137,24 @@ MemoGenius is an intelligent personal assistant that helps you manage reminders 
     - `reminders.db` - SQLite database
     - `custom_rag/` - ChromaDB vector storage for personal memories
 
+## 🎤 Alexa Integration
+
+MemoGenius now offers full integration with Amazon Alexa, allowing voice interaction with the assistant. 
+
+### Setup Requirements
+- Amazon Developer Account
+- Cloudflare account (for tunnel setup)
+- Public domain name
+
+### Configuration Steps
+1. Set up a Cloudflare tunnel to expose your local server
+2. Create a new Alexa Skill in the Amazon Developer Console
+3. Configure the interaction model with the provided JSON
+4. Set the endpoint to your server's Alexa endpoint
+5. Test and publish your skill
+
+For detailed instructions, refer to the integration guide in [MEMOGENIUS_ALEXA_INTEGRATION_GUIDE.md](./MEMOGENIUS_ALEXA_INTEGRATION_GUIDE.md).
+
 ## 🌐 API Documentation
 
 When the FastAPI server is running, access the API documentation at:
@@ -139,3 +176,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - [Python Telegram Bot](https://python-telegram-bot.org/)
 - [FastAPI](https://fastapi.tiangolo.com/)
 - [ChromaDB](https://www.trychroma.com/)
+- [Amazon Alexa Skills Kit](https://developer.amazon.com/en-US/alexa/alexa-skills-kit)
