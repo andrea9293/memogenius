@@ -49,13 +49,13 @@ def escape_html(text: str) -> str:
             continue  # Skip this line entirely
         
         # Apply normal replacements
-        line = line.replace('<br>', '\n')
-        line = line.replace('<br/>', '\n')
-        line = line.replace('<br />', '\n')
+        line = line.replace('<br>', ' *newline')
+        line = line.replace('<br/>', ' *newline')
+        line = line.replace('<br />', ' *newline')
         line = line.replace('<div>', '')
         line = line.replace('</div>', '')
         line = line.replace('<p>', '')
-        line = line.replace('</p>', '')
+        line = line.replace('</p>', ' *newline')
         line = line.replace('<li>', '• ')
         line = line.replace('</li>', '')
         line = line.replace('<ul>', '')
@@ -78,6 +78,9 @@ def escape_html(text: str) -> str:
         line = line.replace('</code>', '')
         line = line.replace('<head>', '')
         line = line.replace('</head>', '')
+        line = line.replace('<small>', '')
+        line = line.replace('</small>', '')
+        line = line.replace('<hr>', '_____')
         line = line.replace('<!DOCTYPE html>', '')
         
         processed_lines.append(line)
@@ -108,6 +111,7 @@ def escape_html(text: str) -> str:
     lines = [line for line in lines if line.strip()]
     text = '\n'.join(lines)
     
+    text = text.replace(' *newline', '\n')
     return text.strip()
 
 def save_response_to_html(text: str) -> str:

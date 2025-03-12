@@ -12,13 +12,16 @@ class ToolExecutor:
             
             # Search and utility tools
             "perform_deep_search": gemini_tools.perform_deep_search,
-            # "get_current_datetime": gemini_tools.get_current_datetime,
+            "perform_grounded_search": gemini_tools.perform_grounded_search,
+            "get_current_datetime": gemini_tools.get_current_datetime,
             
             # Memory tools
             "store_memory": memory_tools.store_memory_tool,
             "retrieve_memory": memory_tools.retrieve_memory_tool,
             "update_memory": memory_tools.update_memory_tool,
             "delete_memory": memory_tools.delete_memory_tool,
+            "search_by_tags": memory_tools.search_by_tags_tool,
+            "get_user_memories": memory_tools.get_user_memories_tool,
             
             # List tools
             "get_list": list_tools.get_list_tool,

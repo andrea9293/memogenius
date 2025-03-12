@@ -76,15 +76,31 @@ delete_reminder_declaration = types.FunctionDeclaration(
     ),
 )
 
-perform_grounded_search_declaration = types.FunctionDeclaration(
-    name="perform_grounded_search",
-    description="Performs a web search to get real-time information. You MUST use this tool for ANY questions about current events, facts, weather, news, sports, or information you might not know. Never simulate web search results. The output should include dates and times in Italian format and timezone. Always include source links.",
+# perform_grounded_search_declaration = types.FunctionDeclaration(
+#     name="perform_grounded_search",
+#     description="Performs a simple web search to get real-time information. You MUST use this tool for ANY simple question that needs a web search. Never simulate web search results. The output should include dates and times in Italian format and timezone.",
+#     parameters=types.Schema(
+#         type=types.Type.OBJECT,
+#         properties={
+#             "query": types.Schema(type=types.Type.STRING, description="The specific search query that will give the most relevant results for the user's question."),
+#         },
+#         required=["query"],
+#     ),
+# )
+
+perform_deep_search_declaration = types.FunctionDeclaration(
+    name="perform_deep_search",
+    description="Performs a web search using multiple queries to get comprehensive real-time information. You MUST use this tool for any questions about current events, facts, weather, news, sports, or information you might not know and needs a research on web. Never simulate web search results. Maximum 10 queries allowed. The output should include dates and times in Italian format and timezone. Always include source links",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
-            "query": types.Schema(type=types.Type.STRING, description="The specific search query that will give the most relevant results for the user's question."),
+            "queryList": types.Schema(
+                type=types.Type.ARRAY,
+                items=types.Schema(type=types.Type.STRING),
+                description="List of specific search queries (maximum 10) that will give the most relevant results for the user's question."
+            ),
         },
-        required=["query"],
+        required=["queryList"],
     ),
 )
 
@@ -277,7 +293,7 @@ def perform_grounded_search(query: str, user_id: int | None = None) -> str:
     
     res = res + ' | sources: ' + str(response.candidates[0].grounding_metadata.grounding_chunks)
     
-    print(res)
+    # print(res)
     return res
 
 def get_current_datetime(dummyParameter: str = "", user_id: int | None = None) -> str:
