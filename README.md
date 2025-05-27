@@ -4,6 +4,17 @@
 
 MemoGenius is an intelligent personal assistant that helps you manage reminders and access information through natural language conversations. The system combines a sleek React frontend with a powerful Python backend powered by Google Gemini AI, providing a seamless experience across web, Telegram interfaces, and Amazon Alexa devices.
 
+## Features 🚀
+
+- **Multi-Platform Access**: Use MemoGenius through Telegram, web interface, or Alexa devices
+- **Smart Conversations**: Natural language processing with Google Gemini AI
+- **Voice Interaction**: Speak with MemoGenius through Amazon Alexa
+- **Reminder Management**: Create, edit, and get notifications for important events
+- **Personal Memory**: Store and retrieve personal information with vector search
+- **Real-time Information**: Search capabilities to answer questions from the web
+- **Multilingual Support**: Interaction in both English and Italian
+- **Synchronized Experience**: Consistent data across all platforms
+
 ## System Architecture 🏗️
 
 MemoGenius consists of three main components:
@@ -24,17 +35,6 @@ graph LR
     D -->|Data Storage| F[SQLite]
     D -->|Vector Storage| G[ChromaDB]
 ```
-
-## Features 🚀
-
-- **Multi-Platform Access**: Use MemoGenius through Telegram, web interface, or Alexa devices
-- **Smart Conversations**: Natural language processing with Google Gemini AI
-- **Voice Interaction**: Speak with MemoGenius through Amazon Alexa
-- **Reminder Management**: Create, edit, and get notifications for important events
-- **Personal Memory**: Store and retrieve personal information with vector search
-- **Real-time Information**: Search capabilities to answer questions from the web
-- **Multilingual Support**: Interaction in both English and Italian
-- **Synchronized Experience**: Consistent data across all platforms
 
 ## Recent Improvements 🛠️
 
